@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAKBANK Learning Bites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{--red:#E60021;--navy:#3F4A5C;--bg:#FFFFFF;--surface:#FFFFFF;--green:#00A66C;--amber:#FFB020;--gray:#5B6472;--border:#E7ECF3;--blue:#009FE3;--shadow:0 14px 36px rgba(63,74,92,.12);}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Cabin','Segoe UI',-apple-system,sans-serif;}
+  body{background:var(--bg);color:#111;min-height:100vh;display:flex;}
+  .sidebar{width:260px;background:#fff;border-right:1px solid var(--border);min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+  .brand{background:linear-gradient(135deg,var(--red),#A50D26);color:#fff;padding:24px 20px;}
+  .brand h1{font-size:18px;font-weight:800;}
+  .brand p{font-size:12px;opacity:.85;margin-top:4px;}
+  .nav{padding:16px 12px;flex:1;}
+  .nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:0;background:transparent;text-align:left;border-radius:10px;font-size:14px;font-weight:500;color:var(--gray);cursor:pointer;margin-bottom:4px;}
+  .nav-btn:hover{background:#F5F7FB;color:var(--navy);}
+  .nav-btn.active{background:#FEE2E2;color:var(--red);font-weight:600;}
+  .nav-btn .step{width:24px;height:24px;border-radius:6px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  .nav-btn.active .step{background:var(--red);color:#fff;}
+  .sidebar-footer{padding:16px;border-top:1px solid var(--border);}
+  .reset-btn{width:100%;padding:10px;background:#fff;color:var(--gray);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;}
+  .main{flex:1;display:flex;flex-direction:column;}
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:12px;}
+  .topbar h2{color:var(--navy);font-size:20px;font-weight:700;}
+  .live-pill{background:var(--green);color:#fff;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;}
+  .toolbar{margin-left:auto;display:flex;gap:8px;}
+  .tool-btn{background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--navy);cursor:pointer;}
+  .content{padding:32px;flex:1;max-width:1100px;width:100%;margin:0 auto;}
+  .section{display:none;}
+  .section.active{display:block;}
+  .card{background:var(--surface);border-radius:16px;padding:28px;box-shadow:var(--shadow);margin-bottom:20px;}
+  .card h3{color:var(--navy);font-size:18px;margin-bottom:6px;}
+  .card p.subtitle{color:var(--gray);font-size:14px;margin-bottom:20px;}
+  label{display:block;font-size:13px;color:var(--gray);font-weight:600;margin-bottom:8px;margin-top:14px;}
+  input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff;font-family:inherit;}
+  textarea{min-height:80px;resize:vertical;}
+  input:focus,select:focus,textarea:focus{outline:0;border-color:var(--navy);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;background:var(--red);color:#fff;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;}
+  .btn:hover{opacity:.92;}
+  .btn.full{width:100%;}
+  .btn.secondary{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  .btn.green{background:var(--green);}
+  .btn.ghost{background:transparent;color:var(--navy);}
+  .btn.small{min-height:36px;padding:0 14px;font-size:13px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .course-preview{margin-top:24px;}
+  .course-head{background:linear-gradient(135deg,#FEE2E2,#FFF7ED);padding:24px;border-radius:14px;border-left:4px solid var(--red);}
+  .course-head .pill{display:inline-block;background:var(--red);color:#fff;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;margin-bottom:10px;cursor:text;}
+  .editable{outline:none;padding:6px 8px;border:1px dashed transparent;border-radius:6px;cursor:text;}
+  .editable:hover{border-color:var(--border);background:#fff;}
+  .editable:focus{border-color:var(--navy);background:#fff;}
+  .section-block{padding:20px 0;border-bottom:1px solid var(--border);}
+  .section-block:last-child{border:0;}
+  .section-block h4{color:var(--navy);font-size:13px;font-weight:700;text-transform:uppercase;margin-bottom:10px;}
+  ul.bullets{list-style:none;padding:0;}
+  ul.bullets li{padding:8px 0 8px 28px;position:relative;color:#374151;font-size:14px;}
+  ul.bullets li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:700;}
+  .quiz-edit{padding:14px;background:#F9FAFB;border-radius:10px;margin-bottom:10px;border:1px solid var(--border);}
+  .option-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .option-row .letter{width:30px;text-align:center;font-weight:700;color:var(--navy);}
+  .tab-bar{display:flex;gap:4px;background:#F3F4F6;padding:4px;border-radius:10px;margin-bottom:20px;}
+  .tab-btn{flex:1;padding:10px;background:transparent;border:0;border-radius:8px;font-size:13px;color:var(--gray);cursor:pointer;}
+  .tab-btn.active{background:#fff;color:var(--navy);font-weight:600;}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+  .learner-table{width:100%;border-collapse:separate;border-spacing:0 6px;}
+  .learner-table th{font-size:11px;color:var(--gray);text-transform:uppercase;font-weight:700;text-align:left;padding:0 8px 4px;}
+  .learner-table input{padding:8px 10px;font-size:13px;border-radius:8px;}
+  .learner-table .remove-btn{background:#FEE2E2;color:var(--red);border:0;border-radius:6px;width:32px;height:32px;cursor:pointer;}
+  .preset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .preset-card{background:#F9FAFB;border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;}
+  .preset-card:hover{border-color:var(--red);background:#FEE2E2;}
+  .preset-card h5{color:var(--navy);font-size:14px;margin-bottom:4px;}
+  .preset-card p{font-size:12px;color:var(--gray);}
+  .result-card{background:#F0FDF4;border:1px solid #16A34A;border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+  .result-card .name{flex:1;font-weight:600;color:#065F46;font-size:14px;}
+  .result-card .meta{font-size:11px;color:#065F46;opacity:.8;}
+  .url-display{background:#F3F4F6;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:11px;color:#374151;word-break:break-all;margin-top:8px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+  .kpi{background:#fff;padding:20px;border-radius:14px;box-shadow:var(--shadow);}
+  .kpi .label{font-size:11px;color:var(--gray);text-transform:uppercase;font-weight:600;}
+  .kpi .value{font-size:32px;color:var(--navy);font-weight:800;margin-top:6px;}
+  .table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;}
+  .table th{background:#F9FAFB;color:var(--gray);font-size:11px;font-weight:700;text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:1px solid var(--border);}
+  .table td{padding:14px 16px;font-size:14px;color:#111;border-bottom:1px solid var(--border);}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+  .badge.completed{background:#DCFCE7;color:#065F46;}
+  .donut-wrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+  .donut{width:140px;height:140px;border-radius:50%;mask:radial-gradient(circle at center,transparent 45%,black 46%);-webkit-mask:radial-gradient(circle at center,transparent 45%,black 46%);}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;}
+  .legend-dot{width:10px;height:10px;border-radius:50%;}
+  .export-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .empty{text-align:center;padding:60px 20px;color:var(--gray);}
+  .empty .icon{font-size:48px;margin-bottom:12px;}
+  .empty h3{color:var(--navy);font-size:18px;margin-bottom:8px;}
+  .overlay{position:fixed;inset:0;background:rgba(10,42,94,.4);display:none;align-items:center;justify-content:center;z-index:100;}
+  .overlay.show{display:flex;}
+  .spinner{background:#fff;padding:32px 40px;border-radius:16px;text-align:center;min-width:280px;}
+  .spinner-circle{width:48px;height:48px;border:4px solid #E5E7EB;border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed;top:24px;right:24px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:10px;z-index:200;opacity:0;transform:translateX(20px);transition:all .3s;font-size:14px;font-weight:500;max-width:400px;}
+  .toast.show{opacity:1;transform:translateX(0);}
+  .toast.success{background:var(--green);}
+  .toast.error{background:var(--red);}
+  .info-box{background:#F0F9FF;border-left:4px solid var(--blue);padding:14px 18px;border-radius:8px;font-size:13px;color:#075985;margin:10px 0;}
+  .warning-box{background:#FEF3C7;border-left:4px solid var(--amber);padding:10px 14px;border-radius:8px;font-size:12px;color:#92400E;margin:10px 0;}
+  .success-banner{background:linear-gradient(135deg,#DCFCE7,#F0FDF4);border:2px solid var(--green);border-radius:12px;padding:18px 22px;color:#065F46;margin:14px 0;display:flex;align-items:center;gap:12px;}
+  .success-banner .icon{font-size:32px;}
+  .success-banner h4{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .success-banner p{font-size:13px;line-height:1.5;}
+  .import-zone{border:3px dashed var(--green);border-radius:16px;padding:32px;text-align:center;background:#F0FDF4;cursor:pointer;transition:all .15s;margin-bottom:20px;display:block;}
+  .import-zone:hover{background:#DCFCE7;border-color:#065F46;}
+  .import-zone .big-icon{font-size:56px;margin-bottom:12px;display:block;}
+  .import-zone h4{color:#065F46;font-size:18px;font-weight:700;margin-bottom:6px;}
+  .import-zone p{color:#065F46;font-size:14px;line-height:1.5;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(10,42,94,.5);display:none;align-items:center;justify-content:center;z-index:150;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal-card{background:#fff;border-radius:16px;padding:32px;max-width:560px;width:100%;max-height:90vh;overflow:auto;position:relative;}
+  .modal-card h3{color:var(--navy);font-size:20px;margin-bottom:6px;}
+  .modal-card .close-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:8px;background:#F3F4F6;color:var(--gray);border:0;cursor:pointer;font-size:16px;}
+  .ai-flow-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;}
+  .ai-flow-tab{padding:12px 20px;font-weight:600;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--gray);cursor:pointer;font-size:14px;font-family:inherit;}
+  .ai-flow-tab.active{color:var(--red);border-bottom-color:var(--red);}
+  .step-card{background:#F0F9FF;border-left:4px solid var(--blue);padding:14px 18px;border-radius:8px;margin:18px 0 14px;color:#075985;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;}
+  .step-number{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;font-weight:700;font-size:13px;}
+  .prompt-box{background:#F9FAFB;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:12px;color:#374151;max-height:280px;overflow-y:auto;white-space:pre-wrap;margin:10px 0;}
+  .ai-link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0;}
+  .ai-link-card{background:#fff;border:2px solid var(--border);border-radius:10px;padding:14px;text-align:center;text-decoration:none;color:var(--navy);font-weight:600;font-size:13px;display:block;}
+  .ai-link-card:hover{border-color:var(--red);background:#FEE2E2;color:var(--red);}
+  .ai-link-card .icon{font-size:28px;display:block;margin-bottom:6px;}
+  .ai-link-card small{display:block;margin-top:4px;font-size:11px;color:var(--gray);}
+  .library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px;}
+  .library-card{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column;border:1px solid transparent;}
+  .library-card:hover{border-color:var(--red);}
+  .library-card .delete-btn{position:absolute;top:12px;right:12px;background:#FEE2E2;color:var(--red);border:0;width:30px;height:30px;border-radius:8px;cursor:pointer;display:none;}
+  .library-card:hover .delete-btn{display:flex;align-items:center;justify-content:center;}
+  .library-card .lib-icon{font-size:36px;margin-bottom:12px;}
+  .library-card .lib-pill{display:inline-block;background:#FEE2E2;color:var(--red);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;margin-bottom:10px;}
+  .library-card .lib-title{color:var(--navy);font-size:16px;font-weight:700;margin-bottom:8px;}
+  .library-card .lib-obj{color:var(--gray);font-size:13px;font-style:italic;margin-bottom:16px;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .library-card .lib-meta{font-size:11px;color:var(--gray);margin-bottom:12px;}
+  .library-card .lib-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .library-card .btn-mini{padding:8px 12px;font-size:12px;border:0;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit;}
+  .library-card .btn-mini.primary{background:var(--red);color:#fff;}
+  .library-card .btn-mini.secondary{background:#fff;color:var(--navy);border:1px solid var(--border);}
+  .library-card .btn-mini.ghost{background:transparent;color:var(--gray);}
+  .library-stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .library-stat{background:#fff;padding:14px 20px;border-radius:10px;box-shadow:var(--shadow);}
+  .library-stat .stat-label{font-size:11px;color:var(--gray);text-transform:uppercase;font-weight:600;}
+  .library-stat .stat-value{font-size:24px;color:var(--navy);font-weight:800;margin-top:4px;}
+  body.shared-mode{display:block;background:#F5F7FB;}
+  .shared-topbar{background:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+  .shared-brand .logo{color:var(--red);font-weight:800;font-size:18px;}
+  .shared-brand .name{color:var(--navy);font-size:16px;font-weight:600;margin-left:10px;}
+  .shared-progress{color:var(--gray);font-size:14px;font-weight:500;}
+  .shared-progress .current{color:var(--red);font-weight:700;}
+  .shared-container{max-width:720px;margin:60px auto 24px;padding:0 20px;}
+  .shared-card{background:#fff;border-radius:16px;padding:48px 56px;box-shadow:0 2px 16px rgba(10,42,94,.06);}
+  .shared-icon{width:56px;height:56px;margin:0 auto 20px;display:block;text-align:center;font-size:48px;line-height:56px;}
+  .shared-pill{display:inline-block;background:#FEE2E2;color:var(--red);padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:16px;}
+  .shared-card h1{color:var(--navy);font-size:28px;line-height:1.3;margin-bottom:14px;font-weight:700;}
+  .shared-card p{color:#374151;font-size:16px;line-height:1.6;margin-bottom:12px;}
+  .shared-card p b{color:var(--navy);}
+  .shared-card h2{color:var(--navy);font-size:18px;margin:20px 0 12px;font-weight:700;}
+  .shared-card ul.checklist{list-style:none;padding:0;}
+  .shared-card ul.checklist li{padding:10px 0 10px 32px;position:relative;color:#374151;font-size:16px;}
+  .shared-card ul.checklist li::before{content:"\2713";position:absolute;left:4px;color:var(--green);font-weight:700;font-size:18px;}
+  .shared-card .scenario-box{background:linear-gradient(135deg,#FFF7ED,#FEE2E2);padding:20px;border-radius:12px;border-left:4px solid var(--red);color:#374151;font-size:16px;line-height:1.7;margin:16px 0;}
+  .shared-card .quiz-q{color:var(--navy);font-size:18px;font-weight:600;margin-bottom:20px;}
+  .shared-card .quiz-option{display:block;width:100%;padding:16px 20px;background:#F3F4F6;border:2px solid transparent;border-radius:12px;margin-bottom:12px;text-align:left;cursor:pointer;font-size:15px;color:#111;font-family:inherit;}
+  .shared-card .quiz-option:hover:not(:disabled){background:#E5E7EB;}
+  .shared-card .quiz-option.correct{background:#DCFCE7;border-color:var(--green);color:#065F46;}
+  .shared-card .quiz-option.wrong{background:#FEE2E2;border-color:var(--red);color:#7F1D1D;}
+  .shared-card .quiz-feedback{padding:14px 18px;border-radius:10px;margin-top:14px;display:none;font-size:14px;}
+  .shared-card .quiz-feedback.show{display:block;}
+  .shared-card .quiz-feedback.ok{background:#DCFCE7;color:#065F46;}
+  .shared-card .quiz-feedback.no{background:#FEE2E2;color:#7F1D1D;}
+  .shared-card .attempt-note{display:inline-block;background:#FEF3C7;color:#92400E;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-left:10px;}
+  .shared-card .score-circle{width:160px;height:160px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%),#E5E7EB 0);display:flex;align-items:center;justify-content:center;margin:24px auto;}
+  .shared-card .score-inner{width:130px;height:130px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .shared-card .score-inner b{font-size:36px;color:var(--navy);font-weight:800;}
+  .shared-card .score-inner span{font-size:11px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;}
+  .shared-actions{max-width:720px;margin:24px auto 60px;padding:0 20px;display:flex;gap:12px;flex-direction:column;}
+  .shared-btn{display:block;width:100%;min-height:56px;background:var(--red);color:#fff;border:0;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;padding:0 24px;}
+  .shared-btn:hover{opacity:.92;}
+  .shared-btn.secondary{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  .shared-btn.green{background:var(--green);}
+  .shared-btn:disabled{opacity:.6;cursor:not-allowed;}
+  .shared-cert-display{background:linear-gradient(135deg,#fff,#FEE2E2);border:2px solid var(--red);border-radius:14px;padding:24px;text-align:center;margin:20px 0;}
+  .shared-cert-display h4{color:var(--red);font-size:13px;letter-spacing:1.5px;margin-bottom:10px;}
+  .shared-cert-display .cert-name{color:var(--navy);font-size:24px;font-weight:700;margin:8px 0;}
+  .shared-cert-display .cert-course{color:var(--navy);font-size:17px;font-weight:600;margin-top:10px;}
+  .shared-cert-display .cert-meta{color:var(--gray);font-size:13px;margin-top:6px;}
+  .shared-cert-display .cert-badge{color:var(--green);font-size:17px;font-weight:700;margin-top:6px;}
+  .shared-fail-card{text-align:center;}
+  .shared-fail-card .fail-icon{font-size:56px;color:var(--red);display:block;margin-bottom:12px;}
+  .shared-fail-card h1{color:var(--navy);font-size:26px;}
+  .shared-fail-card .fail-score{font-size:42px;color:var(--red);font-weight:800;margin:16px 0;}
+  .shared-fail-card .pass-note{background:#FEF3C7;border-left:4px solid var(--amber);padding:12px 18px;border-radius:8px;color:#92400E;font-size:14px;display:inline-block;margin:12px 0;}
+  .shared-final{text-align:center;padding:20px 0;}
+  .shared-final .big-trophy{font-size:80px;margin:12px 0;}
+  .shared-final h1{color:var(--navy);font-size:32px;margin:12px 0 16px;}
+  .shared-final .key-message{background:linear-gradient(135deg,#DCFCE7,#F0FDF4);border-left:4px solid var(--green);padding:20px 24px;border-radius:12px;margin:20px 0;color:#065F46;font-size:17px;line-height:1.7;font-style:italic;}
+  .shared-already-msg{text-align:center;padding:40px 20px;}
+  .shared-already-msg .done-icon{font-size:80px;color:var(--green);display:block;margin-bottom:16px;}
+  @media(max-width:900px){body:not(.shared-mode){flex-direction:column;}body:not(.shared-mode) .sidebar{width:100%;height:auto;position:relative;}body:not(.shared-mode) .sidebar-footer{display:none;}body:not(.shared-mode) .nav{display:flex;overflow-x:auto;padding:12px;}body:not(.shared-mode) .nav-btn{flex:0 0 auto;margin:0 4px;}.shared-card{padding:32px 24px;}.shared-card h1{font-size:24px;}}
+
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0;}
+.flip-card{perspective:1000px;height:160px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:600;box-shadow:0 4px 14px rgba(10,42,94,.1);}
+.flip-front{background:linear-gradient(135deg,var(--red),#A50D26);color:#fff;}
+.flip-back{background:linear-gradient(135deg,var(--navy),#1E40AF);color:#fff;transform:rotateY(180deg);font-weight:500;font-size:13px;line-height:1.5;}
+
+
+/* ===== v11: CEO Learner + Bright Admin + Per-Section Image Upload + Confetti + Export Links (Cabin only) ===== */
+.brand{background:linear-gradient(135deg,#FFFFFF 0%,#FFF0F3 54%,#EAF7FF 100%);color:var(--navy);border-bottom:1px solid rgba(230,0,33,.12);}
+.brand-logo-img{width:200px;max-width:100%;display:block;margin-bottom:6px;}
+.brand h1{color:var(--red);}
+.brand p{color:var(--navy);opacity:.86;font-weight:700;letter-spacing:.2px;}
+.nav-btn.active{background:linear-gradient(90deg,#FFF0F3,#FFFFFF);color:var(--red);box-shadow:inset 3px 0 0 var(--red);}
+.card.generate-hero{background:linear-gradient(135deg,#FFF4E5 0%,#FFE6EC 45%,#E8F4FF 100%);border:1px solid rgba(230,0,33,.12);}
+.section-block{position:relative;border-radius:14px;padding:22px 22px 22px 30px;margin:14px 0;background:#FFFFFF;border:1px solid #EEF2F7;box-shadow:0 8px 18px rgba(63,74,92,.05);}
+.section-block::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:6px;border-radius:6px;background:linear-gradient(180deg,#E30613,#F5B335);}
+.section-block.sb-flip::before{background:linear-gradient(180deg,#7C3AED,#06B6D4);}
+.section-block.sb-quiz::before{background:linear-gradient(180deg,#E30613,#FF6B6B);}
+.section-block.sb-kc::before{background:linear-gradient(180deg,#00A66C,#20C987);}
+.section-block.sb-kt::before{background:linear-gradient(180deg,#F5B335,#FFB020);}
+.section-block.sb-sc::before{background:linear-gradient(180deg,#009FE3,#7C3AED);}
+.section-block.sb-bs::before{background:linear-gradient(180deg,#FF6B6B,#F5B335);}
+.section-block h4{color:#3F4A5C;font-weight:800;letter-spacing:.5px;}
+.add-more-block{background:#FFFFFF;border-radius:16px;padding:22px;margin:22px 0;border:2px dashed transparent;background-image:linear-gradient(#FFFFFF,#FFFFFF),linear-gradient(135deg,#E30613,#F5B335,#009FE3,#00A66C);background-origin:border-box;background-clip:padding-box,border-box;box-shadow:0 12px 30px rgba(63,74,92,.08);}
+.add-more-block h4{color:#3F4A5C;font-size:15px;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;}
+.add-more-block p{color:#5B6472;font-size:13px;margin-bottom:14px;}
+.add-more-row{display:flex;gap:12px;flex-wrap:wrap;}
+.add-more-btn{flex:1;min-width:220px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;border:0;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;color:#fff;box-shadow:0 12px 24px rgba(63,74,92,.15);transition:transform .15s ease;font-family:inherit;}
+.add-more-btn:hover{transform:translateY(-2px);}
+.add-more-btn.flip{background:linear-gradient(135deg,#7C3AED,#06B6D4);}
+.add-more-btn.quiz{background:linear-gradient(135deg,#E30613,#FF6B6B);}
+.image-upload{margin-top:10px;padding:12px 14px;border:2px dashed #E7ECF3;border-radius:12px;background:#FBFDFF;}
+.image-upload label{display:block;font-size:12px;font-weight:700;color:#3F4A5C;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}
+.img-preview img{max-width:220px;max-height:160px;border-radius:12px;margin-top:10px;display:block;box-shadow:0 8px 18px rgba(63,74,92,.16);border:2px solid #FFFFFF;}
+body.shared-mode{background:linear-gradient(180deg,#FBFDFF 0%,#FFF7FA 45%,#EAF7FF 100%);}
+.shared-topbar{background:#FFFFFF;padding:22px 32px;box-shadow:0 8px 22px rgba(63,74,92,.05);position:relative;}
+.shared-topbar::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:4px;background:linear-gradient(90deg,#E30613,#F5B335,#009FE3,#00A66C);border-radius:0 0 8px 8px;}
+.rakbank-logo-img{width:200px;height:auto;display:inline-block;vertical-align:middle;}
+.shared-brand{display:flex;align-items:center;gap:14px;}
+.shared-brand .name{color:#3F4A5C;font-size:14px;font-weight:700;letter-spacing:.3px;}
+.shared-progress{background:#FFFFFF;border:1px solid #E7ECF3;color:#3F4A5C;font-weight:700;border-radius:999px;padding:6px 14px;box-shadow:0 4px 12px rgba(63,74,92,.06);}
+.shared-progress .current{color:#FFFFFF;background:linear-gradient(135deg,#B4000F,#E30613);padding:2px 8px;border-radius:999px;}
+.shared-container{max-width:780px;margin:46px auto 24px;padding:0 20px;}
+.shared-card{background:#FFFFFF;border:1px solid rgba(231,236,243,.95);border-radius:26px;padding:56px 64px;box-shadow:0 32px 64px rgba(63,74,92,.14);animation:sharedIn .55s ease-out both;position:relative;overflow:hidden;}
+.shared-card:before{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:linear-gradient(90deg,#E30613,#F5B335,#009FE3,#00A66C);}
+@keyframes sharedIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.shared-card h1{font-family:"Cabin","Segoe UI",sans-serif;font-weight:800;color:#1F2937;line-height:1.2;letter-spacing:.2px;}
+.shared-card h2{font-family:"Cabin","Segoe UI",sans-serif;color:#3F4A5C;font-weight:800;}
+.shared-card p{font-family:"Cabin","Segoe UI",sans-serif;line-height:1.75;color:#37414F;}
+.shared-pill{font-family:"Cabin","Segoe UI",sans-serif;border-radius:999px;padding:8px 18px;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;background:linear-gradient(135deg,#E30613,#FF5B6E);color:#fff;box-shadow:0 8px 18px rgba(230,0,33,.20);animation:pillGlow 2.4s ease-in-out infinite;}
+@keyframes pillGlow{0%,100%{box-shadow:0 8px 18px rgba(230,0,33,.20);}50%{box-shadow:0 12px 24px rgba(230,0,33,.32);}}
+.shared-card .scenario-box{font-family:"Cabin","Segoe UI",sans-serif;background:linear-gradient(135deg,#FFFBF3 0%,#FFF7FA 55%,#F3F9FF 100%);border-left:6px solid #E30613;border-radius:14px;padding:24px 26px;box-shadow:0 12px 26px rgba(63,74,92,.08);}
+.shared-card .quiz-q{font-family:"Cabin","Segoe UI",sans-serif;font-size:22px;color:#1F2937;font-weight:800;line-height:1.35;margin-bottom:20px;}
+.shared-card .quiz-option{font-family:"Cabin","Segoe UI",sans-serif;padding:18px 22px;background:#FFFFFF;border:1.5px solid #E7ECF3;border-radius:14px;font-weight:600;color:#1F2937;transition:all .18s ease;position:relative;}
+.shared-card .quiz-option:hover:not(:disabled){border-color:#009FE3;background:#F5FBFF;transform:translateY(-1px);}
+.shared-card .quiz-option.correct{background:#EAFBF3;border-color:#00A66C;color:#006B46;}
+.shared-card .quiz-option.wrong{background:#FFF0F3;border-color:#E30613;color:#9B0018;}
+.shared-btn{font-family:"Cabin","Segoe UI",sans-serif;background:linear-gradient(135deg,#B4000F 0%,#E30613 100%);color:#FFFFFF;border:0;padding:18px 30px;border-radius:14px;font-weight:700;letter-spacing:.5px;font-size:15px;box-shadow:0 14px 26px rgba(180,0,15,.28), inset 0 1px 0 rgba(255,255,255,.25);}
+.shared-btn:hover{transform:translateY(-1px);}
+.shared-btn.secondary{background:#FFFFFF;color:#3F4A5C;border:1.5px solid #3F4A5C;}
+.shared-btn.green{background:linear-gradient(135deg,#00895A,#00A66C);box-shadow:0 14px 26px rgba(0,137,90,.24), inset 0 1px 0 rgba(255,255,255,.25);}
+.shared-cert-display{background:radial-gradient(140% 120% at 50% 0%, #FFF9E8 0%, #FFFFFF 55%);border:2px solid rgba(245,179,53,.55);box-shadow:0 24px 42px rgba(63,74,92,.10);border-radius:18px;padding:34px 30px;}
+.shared-cert-display h4{font-family:"Cabin","Segoe UI",sans-serif;font-size:14px;color:#B4000F;letter-spacing:5px;text-transform:uppercase;font-weight:800;}
+.shared-cert-display .cert-name{font-family:"Cabin","Segoe UI",sans-serif;color:#1F2937;font-size:32px;font-weight:800;margin-top:8px;letter-spacing:.3px;}
+.shared-final .big-trophy{font-size:96px;filter:drop-shadow(0 12px 20px rgba(181,134,0,.28));}
+.shared-final h1{font-size:38px;letter-spacing:.2px;}
+.shared-final .key-message{font-family:"Cabin","Segoe UI",sans-serif;font-style:italic;font-size:19px;line-height:1.7;color:#20573F;background:linear-gradient(135deg,#F3FFF9,#FFFFFF);border-left:5px solid #00A66C;border-radius:14px;padding:22px 26px;}
+.shared-card .score-circle{width:180px;height:180px;box-shadow:0 20px 40px rgba(0,137,90,.18);border-radius:50%;background:conic-gradient(#00A66C calc(var(--p) * 1%),#EEF2F7 0);display:flex;align-items:center;justify-content:center;margin:24px auto;}
+.shared-card .score-inner{width:150px;height:150px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.shared-card .score-inner b{font-family:"Cabin","Segoe UI",sans-serif;font-size:44px;color:#1F2937;font-weight:800;}
+.qc-image,.flip-image{margin:8px 0 12px;text-align:center;}
+.qc-image img,.flip-image img{max-width:100%;max-height:220px;border-radius:14px;box-shadow:0 12px 26px rgba(63,74,92,.20);border:3px solid #FFFFFF;}
+#rakConfetti{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+@media(max-width:900px){.shared-card{padding:36px 24px;border-radius:20px;}.shared-card h1{font-size:24px;}.rakbank-logo-img{width:160px;}}
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand"><img class="brand-logo-img" src="rakbank-logo.jpg" alt="RAKBANK"><p>Learning Bites</p></div>
+  <nav class="nav">
+    <button class="nav-btn active" data-target="s-generate"><span class="step">1</span>Generate Course</button>
+    <button class="nav-btn" data-target="s-library"><span class="step">&#128218;</span>My Courses</button>
+    <button class="nav-btn" data-target="s-assign"><span class="step">2</span>Assign to Learners</button>
+    <button class="nav-btn" data-target="s-learn"><span class="step">3</span>Take as Learner</button>
+    <button class="nav-btn" data-target="s-dash"><span class="step">&#128202;</span>Dashboard</button>
+  </nav>
+  <div class="sidebar-footer"><button class="reset-btn" onclick="resetDemo()">&#8634; Reset Data</button></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">AI Content Generator</h2>
+    <span class="live-pill">LIVE</span>
+    <div class="toolbar">
+      <button class="tool-btn" onclick="openSettings()">&#9881; Settings</button>
+      <button class="tool-btn" onclick="saveBackup()">&#128190; Backup</button>
+      <label class="tool-btn" style="margin:0;">&#128229; Import JSON
+        <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;">
+      </label>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <section class="section active" id="s-generate">
+      <div class="card generate-hero">
+        <h3>Generate a Microlearning Module</h3>
+        <p class="subtitle">Type a topic and Microsoft Copilot generates the JSON.</p>
+        <div class="ai-flow-tabs"><button class="ai-flow-tab active">&#127919; Use Microsoft Copilot</button></div>
+        <div class="step-card"><span class="step-number">1</span>Enter your topic and click <b>Get AI Prompt</b></div>
+        <label>Topic</label>
+        <input id="topicInput" placeholder="e.g. Phishing Awareness for Frontline Employees">
+        <label>Audience</label>
+        <select id="audienceSel"><option>Frontline</option><option>Operations</option><option>Management</option><option>All Staff</option></select>
+        <label>Tone</label>
+        <select id="toneSel"><option>Formal</option><option>Conversational</option></select>
+        <div style="margin-top:18px;"><button class="btn full" onclick="getPrompt()">&#129668; Get AI Prompt</button></div>
+        <div id="step2Area" style="display:none;">
+          <div class="step-card"><span class="step-number">2</span>Copy the prompt and paste into Microsoft Copilot</div>
+          <div class="prompt-box" id="promptBox"></div>
+          <button class="btn green small" onclick="copyPrompt()">&#128203; Copy Prompt</button>
+          <div class="ai-link-grid" style="max-width:280px;margin-top:14px;">
+            <a class="ai-link-card" href="https://copilot.microsoft.com" target="_blank"><span class="icon">&#129302;</span>Microsoft Copilot<small>copilot.microsoft.com</small></a>
+          </div>
+        </div>
+        <div id="step3Area" style="display:none;">
+          <div class="step-card"><span class="step-number">3</span>Paste the response and click <b>Load Course</b></div>
+          <textarea id="aiResponseInput" rows="8" placeholder="Paste the JSON response from Microsoft Copilot here."></textarea>
+          <div style="margin-top:18px;"><button class="btn full" onclick="loadFromAIResponse()">&#128229; Load Course from AI Response</button></div>
+        </div>
+      </div>
+      <div id="coursePreview"></div>
+    </section>
+
+    <section class="section" id="s-library">
+      <div class="card">
+        <h3>My Microlearnings Library</h3>
+        <p class="subtitle">All your created courses.</p>
+        <div class="library-stats" id="libraryStats"></div>
+        <div id="libraryGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="s-assign">
+      <div class="card">
+        <h3>Assign to Multiple Learners</h3>
+        <p class="subtitle">Each learner gets one unique course link. The link opens the assigned course directly, with learner details included.</p>
+        <label>Select Course from Library</label>
+        <select id="assignCourse"></select>
+        <div id="hostedNote"></div>
+        <div id="webhookStatus"></div>
+        <div class="tab-bar" style="margin-top:20px;">
+          <button class="tab-btn active" data-tab="t-manual">&#128221; Add Manually</button>
+          <button class="tab-btn" data-tab="t-csv">&#128194; Upload CSV</button>
+          <button class="tab-btn" data-tab="t-preset">&#128101; Team Presets</button>
+        </div>
+        <div class="tab-pane active" id="t-manual">
+          <table class="learner-table">
+            <thead><tr><th>Name</th><th>Employee ID</th><th>Email</th><th>Department</th><th></th></tr></thead>
+            <tbody id="learnerRows"></tbody>
+          </table>
+          <button class="btn small secondary" onclick="addLearnerRow()" style="margin-top:10px;">+ Add Row</button>
+        </div>
+        <div class="tab-pane" id="t-csv">
+          <p style="font-size:12px;color:var(--gray);">CSV with Name, EmployeeID, Email, Department columns.</p>
+          <input type="file" accept=".csv" onchange="handleCSV(event)">
+        </div>
+        <div class="tab-pane" id="t-preset">
+          <div class="preset-grid">
+            <div class="preset-card" onclick="loadPreset('retail')"><h5>&#127978; Retail Banking</h5><p>5 learners</p></div>
+            <div class="preset-card" onclick="loadPreset('compliance')"><h5>&#9878; Compliance</h5><p>4 learners</p></div>
+            <div class="preset-card" onclick="loadPreset('it')"><h5>&#128187; IT Team</h5><p>3 learners</p></div>
+            <div class="preset-card" onclick="loadPreset('ld')"><h5>&#127891; L&amp;D Team</h5><p>3 learners</p></div>
+          </div>
+        </div>
+        <div style="margin-top:24px;"><button class="btn full" onclick="assignToAll()">&#128233; Assign to All Learners</button></div>
+        <div style="margin-top:12px;"><button class="btn full secondary" onclick="exportAssignmentLinks()">&#128202; Export All Links to Excel</button></div>
+        <div id="assignResult" style="margin-top:20px;"></div>
+      </div>
+    </section>
+
+    <section class="section" id="s-learn">
+      <div class="card">
+        <h3>Learner Experience Preview</h3>
+        <p class="subtitle">Click <b>Preview</b> on any course in My Courses.</p>
+        <div class="empty"><div class="icon">&#128187;</div><h3>Open from My Courses</h3></div>
+      </div>
+    </section>
+
+    <section class="section" id="s-dash">
+      
+
+      <div class="card" style="border-left:4px solid var(--green);">
+        <h3>Live Excel Sync</h3>
+        <p class="subtitle">Paste your OneDrive/SharePoint Excel direct download link once. After that, the dashboard can refresh without manually uploading the file.</p>
+        <label>Live Excel URL</label>
+        <input id="liveExcelUrl" placeholder="Paste OneDrive/SharePoint direct Excel download URL here">
+        <div class="row" style="margin-top:14px;">
+          <button class="btn small green" onclick="saveLiveExcelUrl()">Save Live Excel URL</button>
+          <button class="btn small secondary" onclick="syncLiveExcel(true)">Sync Live Excel Now</button>
+        </div>
+        <div class="warning-box">Required Excel columns: Date, Name, EmployeeID, Department, Course, Score, Attempts, Passed, Email.</div>
+      </div>
+      <label class="import-zone" onclick="document.getElementById('excelImportInput').click()">
+        <span class="big-icon">&#128229;</span>
+        <h4>Upload Completion Excel</h4>
+        <p>Upload your Excel manually if you do not want to use Live Excel Sync.</p>
+        <input type="file" id="excelImportInput" accept=".xlsx,.xls,.csv" onchange="importExcel(event)" style="display:none;">
+      </label>
+
+      <div class="info-box">
+        &#128161; <b>How it works:</b> Use Live Excel Sync for one-click dashboard refresh, or upload the Excel manually. Required columns: Date, Name, EmployeeID, Department, Course, Score, Attempts, Passed, Email. Existing records are refreshed automatically so duplicates are avoided.
+      </div>
+
+      <div class="export-bar">
+        <button class="btn small green" onclick="exportCSV()">&#128202; Export to CSV</button>
+        <button class="btn small secondary" onclick="exportJSON()">&#128203; Export JSON</button>
+        <button class="btn small secondary" onclick="window.print()">&#128424; Print</button>
+      </div>
+      
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Total Courses</div><div class="value" id="kpiCourses">0</div></div>
+        <div class="kpi"><div class="label">Assigned Learners</div><div class="value" id="kpiAssigned">0</div></div>
+        <div class="kpi"><div class="label">Completions</div><div class="value" id="kpiCompleted">0</div></div>
+        <div class="kpi"><div class="label">Average Score</div><div class="value" id="kpiAvg">&mdash;</div></div>
+      </div>
+      <div class="card">
+        <h3>Status Breakdown</h3>
+        <div class="donut-wrap" style="margin-top:16px;">
+          <div class="donut" id="donut"></div>
+          <div>
+            <div class="legend-item"><span class="legend-dot" style="background:#16A34A;"></span>Completed <b id="lgComp" style="margin-left:6px;">0</b></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#F59E0B;"></span>In Progress <b id="lgProg" style="margin-left:6px;">0</b></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#9CA3AF;"></span>Not Started <b id="lgNot" style="margin-left:6px;">0</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Recent Activity</h3>
+        <p class="subtitle">All completions appear here automatically once you import the Excel file.</p>
+        <table class="table">
+          <thead><tr><th>Employee</th><th>Course</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="recentRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <button class="close-x" onclick="closeSettings()">&times;</button>
+    <h3>&#9881; Simple Tracking Settings</h3>
+    <p class="subtitle">Only add these 2 links: your GitHub Hosted WEB URL and Microsoft Forms pre-filled URL.</p>
+    <div class="info-box" style="background:#FEF3C7;border-left-color:#F59E0B;color:#92400E;">
+      <b>&#127760; Hosted URL</b><br>Paste your public GitHub Pages URL for this HTML file. This is the same URL learners will open.
+    </div>
+    <label>Hosted URL</label>
+    <input id="hostedUrl" placeholder="https://yourname.github.io/rakbank-learning/DemoInABox.html">
+    <div style="margin:20px 0 16px;border-top:1px solid var(--border);padding-top:16px;"></div>
+    <div class="info-box" style="background:#F0FDF4;border-left-color:#16A34A;color:#065F46;">
+      <b>&#128221; Microsoft Forms Pre-filled URL</b><br>
+      Click <b>Get pre-filled URL</b> in Microsoft Forms. Put these exact words in the form answers before copying the link: EMP_NAME, EMP_ID, EMP_EMAIL, DEPT, COURSE_TITLE, SCORE, STATUS, DATE, TOKEN.
+    </div>
+    <label>Microsoft Forms Pre-filled URL</label>
+    <textarea id="formTemplate" rows="4" placeholder="Paste your Microsoft Forms pre-filled URL here"></textarea>
+    <input id="webhookUrl" type="hidden" value="">
+    <div class="warning-box">Learner completes course → form opens pre-filled → learner clicks Submit on the form to record completion.</div>
+    <div class="row" style="margin-top:20px;">
+      <button class="btn green" onclick="saveSettings()">&#128190; Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="spinner"><div class="spinner-circle"></div><p id="spinnerMsg">Working...</p></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const PRESETS = {
+  retail:[
+    {name:"Ahmed Khan", empId:"RB12345", email:"ahmed.khan@rakbank.ae", dept:"Retail Banking"},
+    {name:"Fatima Ali", empId:"RB12346", email:"fatima.ali@rakbank.ae", dept:"Retail Banking"},
+    {name:"Zainab Sheikh", empId:"RB12348", email:"zainab.sheikh@rakbank.ae", dept:"Retail Banking"},
+    {name:"Yusuf Ibrahim", empId:"RB12350", email:"yusuf.ibrahim@rakbank.ae", dept:"Retail Banking"},
+    {name:"Mariam Saleh", empId:"RB12351", email:"mariam.saleh@rakbank.ae", dept:"Retail Banking"}
+  ],
+  compliance:[
+    {name:"Omar Hassan", empId:"RB12347", email:"omar.hassan@rakbank.ae", dept:"Compliance"},
+    {name:"Khalid Rashid", empId:"RB12352", email:"khalid.rashid@rakbank.ae", dept:"Compliance"},
+    {name:"Noura Al Mansoori", empId:"RB12353", email:"noura.almansoori@rakbank.ae", dept:"Compliance"},
+    {name:"Sara Mohammed", empId:"RB12354", email:"sara.mohammed@rakbank.ae", dept:"Compliance"}
+  ],
+  it:[
+    {name:"Ravi Kumar", empId:"RB12349", email:"ravi.kumar@rakbank.ae", dept:"IT"},
+    {name:"Prem Achutha", empId:"RB12355", email:"prem.achutha@rakbank.ae", dept:"IT"},
+    {name:"Shahzad Sakharkar", empId:"RB12356", email:"shahzad.sakharkar@rakbank.ae", dept:"IT"}
+  ],
+  ld:[
+    {name:"Laura Evelyn Anesly", empId:"RB-LAURA", email:"laura.anesly@rakbank.ae", dept:"L&D"},
+    {name:"Mridula Jacob", empId:"RB-MRIDULA", email:"mridula.jacob@rakbank.ae", dept:"L&D"},
+    {name:"Valanka Dsouza", empId:"RB-VALANKA", email:"valanka.dsouza@rakbank.ae", dept:"L&D"}
+  ]
+};
+const PASS_MARK = 80;
+
+const STORE = {
+  KEY:"rakbank_excel_v1",
+  load(){ return JSON.parse(localStorage.getItem(this.KEY) || '{"courses":[],"assignments":[],"results":[],"completedTokens":[]}'); },
+  save(d){ localStorage.setItem(this.KEY, JSON.stringify(d)); }
+};
+const SETTINGS = {
+  KEY:"rakbank_settings_excel",
+  defaults:{hostedUrl:"", formTemplate:"", webhookUrl:""},
+  load(){ try { return Object.assign({}, this.defaults, JSON.parse(localStorage.getItem(this.KEY) || '{}')); } catch(e){ return Object.assign({}, this.defaults); } },
+  save(d){ localStorage.setItem(this.KEY, JSON.stringify(Object.assign({}, this.defaults, d))); }
+};
+
+const PROMPT_TEMPLATE = `You are an instructional designer for RAKBANK's Learning & Development team in the UAE. Generate a complete 5-minute microlearning module on the following:
+TOPIC: {TOPIC}
+AUDIENCE: {AUDIENCE}
+TONE: {TONE}
+Return ONLY a valid JSON object with these exact keys (no markdown, no preamble):
+{
+  "title": "course title here",
+  "topic": "category like Cybersecurity Awareness",
+  "pill": "short category label without emoji",
+  "icon": "single emoji",
+  "learning_objective": "one clear measurable objective",
+  "key_concepts": ["concept 1", "concept 2", "concept 3", "concept 4"],
+  "short_content": "150-200 word paragraph",
+  "banking_scenario": "100 word UAE/RAKBANK banking scenario",
+  "flip_cards": [
+    {"front": "Term or question 1", "back": "Definition or answer 1"},
+    {"front": "Term or question 2", "back": "Definition or answer 2"},
+    {"front": "Term or question 3", "back": "Definition or answer 3"},
+    {"front": "Term or question 4", "back": "Definition or answer 4"}
+  ],
+  "knowledge_check": [
+    {"q": "question 1", "options": ["A", "B", "C", "D"], "correct": "B", "feedback_correct": "...", "feedback_incorrect": "..."},
+    {"q": "question 2", "options": ["A", "B", "C", "D"], "correct": "A", "feedback_correct": "...", "feedback_incorrect": "..."},
+    {"q": "question 3", "options": ["A", "B", "C", "D"], "correct": "C", "feedback_correct": "...", "feedback_incorrect": "..."},
+    {"q": "question 4", "options": ["A", "B", "C", "D"], "correct": "D", "feedback_correct": "...", "feedback_incorrect": "..."},
+    {"q": "question 5", "options": ["A", "B", "C", "D"], "correct": "B", "feedback_correct": "...", "feedback_incorrect": "..."}
+  ],
+  "key_takeaways": ["takeaway 1", "takeaway 2", "takeaway 3"],
+  "completion_message": "encouraging closing message"
+}
+Use UAE/RAKBANK/CBUAE context. Return ONLY the JSON object.`;
+
+const titles = {"s-generate":"AI Content Generator","s-library":"My Courses","s-assign":"Assign to Learners","s-learn":"Learner Experience","s-dash":"Live Dashboard"};
+function navTo(id){
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.target === id));
+  document.querySelectorAll(".section").forEach(s => s.classList.toggle("active", s.id === id));
+  document.getElementById("pageTitle").innerText = titles[id] || "";
+  if(id === "s-library") renderLibrary();
+  if(id === "s-assign"){ refreshAssignDropdown(); updateHostedNote(); updateWebhookStatus(); initLiveExcelBox(); }
+  if(id === "s-dash"){ renderDashboard(); initLiveExcelBox(); syncLiveExcel(false); }
+}
+
+function getPrompt(){
+  const topic = document.getElementById("topicInput").value.trim();
+  if(!topic){ toast("Please enter a topic first", false); return; }
+  const audience = document.getElementById("audienceSel").value;
+  const tone = document.getElementById("toneSel").value;
+  const prompt = PROMPT_TEMPLATE.replace("{TOPIC}", topic).replace("{AUDIENCE}", audience).replace("{TONE}", tone);
+  document.getElementById("promptBox").innerText = prompt;
+  document.getElementById("step2Area").style.display = "block";
+  document.getElementById("step3Area").style.display = "block";
+  document.getElementById("step2Area").scrollIntoView({behavior:"smooth"});
+  toast("\u2713 Prompt ready", true);
+}
+
+function copyPrompt(){
+  const text = document.getElementById("promptBox").innerText;
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast("Copied!", true)).catch(() => fallbackCopy(text));
+  else fallbackCopy(text);
+}
+
+function loadFromAIResponse(){
+  let raw = document.getElementById("aiResponseInput").value.trim();
+  if(!raw){ toast("Paste the AI response first", false); return; }
+  raw = raw.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/\s*```$/, "").trim();
+  const first = raw.indexOf("{"), last = raw.lastIndexOf("}");
+  if(first < 0 || last <= first){ toast("Couldn't find JSON", false); return; }
+  raw = raw.substring(first, last + 1);
+  let course;
+  try { course = JSON.parse(raw); } catch(err){ toast("JSON parse error: " + err.message, false); return; }
+  if(!course.title || !course.knowledge_check){ toast("Missing required fields", false); return; }
+  course.id = "C-" + Date.now();
+  if(!course.icon) course.icon = "\uD83D\uDCDA";
+  if(!course.pill) course.pill = course.topic || "Learning";
+  const d = STORE.load(); d.courses.unshift(course); STORE.save(d);
+  renderEditableCourse(course);
+  document.getElementById("aiResponseInput").value = "";
+  document.getElementById("coursePreview").scrollIntoView({behavior:"smooth"});
+  toast("\u2728 Saved to library", true);
+}
+
+function renderLibrary(){
+  const d = STORE.load();
+  document.getElementById("libraryStats").innerHTML = `
+    <div class="library-stat"><div class="stat-label">Total Courses</div><div class="stat-value">${d.courses.length}</div></div>
+    <div class="library-stat"><div class="stat-label">Assignments</div><div class="stat-value">${d.assignments.length}</div></div>
+    <div class="library-stat"><div class="stat-label">Completions</div><div class="stat-value">${d.results.length}</div></div>`;
+  const grid = document.getElementById("libraryGrid");
+  if(d.courses.length === 0){
+    grid.innerHTML = `<div class="empty"><div class="icon">\uD83D\uDCDA</div><h3>No courses yet</h3><button class="btn" style="margin-top:16px;" onclick="navTo('s-generate')">+ Generate a Course</button></div>`;
+    return;
+  }
+  grid.innerHTML = `<div class="library-grid">` + d.courses.map(c => {
+    const assigned = d.assignments.filter(a => a.courseId === c.id).length;
+    const completed = d.results.filter(r => r.courseTitle === c.title).length;
+    return `<div class="library-card">
+      <button class="delete-btn" onclick="deleteCourse('${c.id}')">\uD83D\uDDD1</button>
+      <div class="lib-icon">${escapeHTML(c.icon || "\uD83D\uDCDA")}</div>
+      <span class="lib-pill">${escapeHTML(c.pill || "Learning")}</span>
+      <div class="lib-title">${escapeHTML(c.title)}</div>
+      <div class="lib-obj">${escapeHTML(c.learning_objective)}</div>
+      <div class="lib-meta">\uD83D\uDC65 ${assigned} assigned \u00B7 \u2705 ${completed} completed</div>
+      <div class="lib-actions">
+        <button class="btn-mini primary" onclick="assignFromLibrary('${c.id}')">\uD83D\uDCE8 Assign</button>
+        <button class="btn-mini secondary" onclick="editFromLibrary('${c.id}')">\u270F Edit</button>
+        <button class="btn-mini ghost" onclick="previewAsLearner('${c.id}')">\uD83D\uDC41 Preview</button>
+      </div>
+    </div>`;
+  }).join("") + `</div>`;
+}
+function deleteCourse(cid){
+  const d = STORE.load();
+  const c = d.courses.find(x => x.id === cid);
+  if(!c || !confirm(`Delete "${c.title}"?`)) return;
+  d.courses = d.courses.filter(x => x.id !== cid);
+  STORE.save(d); renderLibrary(); toast("Deleted", true);
+}
+function assignFromLibrary(cid){
+  navTo("s-assign");
+  setTimeout(() => { const sel = document.getElementById("assignCourse"); if(sel) sel.value = cid; }, 50);
+}
+function editFromLibrary(cid){
+  const c = STORE.load().courses.find(x => x.id === cid);
+  if(!c) return;
+  navTo("s-generate");
+  setTimeout(() => { renderEditableCourse(c); document.getElementById("coursePreview").scrollIntoView({behavior:"smooth"}); }, 50);
+}
+
+function renderEditableCourse(c){
+  if(!c.flip_cards) c.flip_cards = [];
+  if(!c.key_concepts) c.key_concepts = [];
+  if(!c.key_takeaways) c.key_takeaways = [];
+  const cid = c.id;
+  document.getElementById("coursePreview").innerHTML = `
+    <div class="card course-preview" data-cid="${cid}">
+      <div class="course-head">
+        <div style="text-align:center;font-size:48px;margin-bottom:12px;"><span class="editable" contenteditable="true" data-field="icon">${escapeHTML(c.icon || "\uD83D\uDCDA")}</span></div>
+        <span class="pill editable" contenteditable="true" data-field="pill">${escapeHTML(c.pill)}</span>
+        <h2><span class="editable" contenteditable="true" data-field="title">${escapeHTML(c.title)}</span></h2>
+        <p style="font-style:italic;"><span class="editable" contenteditable="true" data-field="learning_objective">${escapeHTML(c.learning_objective)}</span></p>
+      </div>
+
+      <div class="section-block sb-kc">
+        <h4>Key Concepts <button class="btn small secondary" style="float:right;" onclick="addKeyConcept('${cid}')">+ Add</button></h4>
+        <ul class="bullets" id="kc-list-${cid}">
+          ${c.key_concepts.map((k,i) => `<li data-kc-index="${i}"><span class="editable" contenteditable="true" data-field="key_concept" data-i="${i}">${escapeHTML(k)}</span> <button class="remove-btn" style="float:right;" onclick="this.closest('li').remove()">\u00D7</button><div class="image-upload"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'kc')"><div class="img-preview" data-field="kc_image_preview">${(c.key_concept_images && c.key_concept_images[i]) ? `<img src="${c.key_concept_images[i]}">` : ""}</div></div></li>`).join("")}
+        </ul>
+      </div>
+
+      <div class="section-block sb-sc"><h4>Short Content</h4><textarea data-field="short_content" rows="5">${escapeHTML(c.short_content)}</textarea><div class="image-upload" data-section="sc"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'sc')"><div class="img-preview" data-field="sc_image_preview">${c.short_content_image ? `<img src="${c.short_content_image}">` : ""}</div></div></div>
+      <div class="section-block sb-bs"><h4>Banking Scenario</h4><textarea data-field="banking_scenario" rows="5">${escapeHTML(c.banking_scenario)}</textarea><div class="image-upload" data-section="bs"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'bs')"><div class="img-preview" data-field="bs_image_preview">${c.banking_scenario_image ? `<img src="${c.banking_scenario_image}">` : ""}</div></div></div>
+
+      <div class="add-more-block"><h4>\u2795 Add More Content</h4><p>Insert extra flip cards or knowledge check questions below. You can optionally upload an image under each new item.</p><div class="add-more-row"><button class="add-more-btn flip" onclick="addFlipCard('${cid}')">\uD83C\uDCCF Add Flip Card</button><button class="add-more-btn quiz" onclick="addQuestion('${cid}')">\uD83D\uDCDD Add Knowledge Check Question</button></div></div>
+      <div class="section-block sb-flip">
+        <h4>\uD83C\uDCCF Flip Cards <button class="btn small secondary" style="float:right;" onclick="addFlipCard('${cid}')">+ Add Card</button></h4>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">Learners will click each card to flip and reveal the back.</p>
+        <div id="fc-list-${cid}">
+          ${c.flip_cards.map((f,i) => `
+            <div class="quiz-edit" data-flipcard="${i}">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <b style="color:var(--navy);">Card ${i+1}</b>
+                <button class="remove-btn" onclick="this.closest('[data-flipcard]').remove()">\u00D7</button>
+              </div>
+              <label>Front (term/question)</label><input data-field="flip_front" value="${escapeHTML(f.front||"")}">
+              <label>Back (definition/answer)</label><textarea data-field="flip_back" rows="2">${escapeHTML(f.back||"")}</textarea>
+              <div class="image-upload"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'fc')"><div class="img-preview" data-field="fc_image_preview">${f.image ? `<img src="${f.image}">` : ""}</div></div>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="section-block sb-quiz">
+        <h4>Knowledge Check <button class="btn small secondary" style="float:right;" onclick="addQuestion('${cid}')">+ Add Question</button></h4>
+        <div id="kq-list-${cid}">
+          ${c.knowledge_check.map((q,qi) => renderQuestionBlock(q, qi)).join("")}
+        </div>
+      </div>
+
+      <div class="section-block sb-kt">
+        <h4>Key Takeaways <button class="btn small secondary" style="float:right;" onclick="addTakeaway('${cid}')">+ Add</button></h4>
+        <ul class="bullets" id="kt-list-${cid}">
+          ${c.key_takeaways.map((k,i) => `<li data-kt-index="${i}"><span class="editable" contenteditable="true" data-field="key_takeaway" data-i="${i}">${escapeHTML(k)}</span> <button class="remove-btn" style="float:right;" onclick="this.closest('li').remove()">\u00D7</button><div class="image-upload"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'kt')"><div class="img-preview" data-field="kt_image_preview">${(c.key_takeaway_images && c.key_takeaway_images[i]) ? `<img src="${c.key_takeaway_images[i]}">` : ""}</div></div></li>`).join("")}
+        </ul>
+      </div>
+
+      <div class="section-block"><h4>Completion Message</h4><p style="font-style:italic;color:var(--navy);"><span class="editable" contenteditable="true" data-field="completion_message">${escapeHTML(c.completion_message)}</span></p></div>
+      <div class="row" style="margin-top:20px;">
+        <button class="btn green" onclick="saveEditedCourse('${cid}')">\uD83D\uDCBE Save Changes</button>
+        <button class="btn ghost" onclick="previewAsLearner('${cid}')">\uD83D\uDC41 Preview</button>
+        <button class="btn secondary" onclick="downloadCourseAsWord('${cid}')">\uD83D\uDCC4 Download to Word</button>
+        <button class="btn ghost" onclick="assignFromLibrary('${cid}')">\u2192 Assign</button>
+      </div>
+    </div>`;
+}
+
+function renderQuestionBlock(q, qi){
+  const opts = q.options || ["","","",""];
+  return `<div class="quiz-edit" data-question="${qi}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <b style="color:var(--navy);">Question ${qi+1}</b>
+      <button class="remove-btn" onclick="this.closest('[data-question]').remove()">\u00D7</button>
+    </div>
+    <label>Question</label><input data-field="q" value="${escapeHTML(q.q||"")}">
+    ${opts.map((o,oi) => `<div class="option-row"><span class="letter">${"ABCD"[oi]}</span><input data-field="opt_${oi}" value="${escapeHTML(o)}"></div>`).join("")}
+    <label>Correct</label><select data-field="correct">${["A","B","C","D"].map(l => `<option ${l===q.correct?"selected":""}>${l}</option>`).join("")}</select>
+    <label>Feedback (correct)</label><input data-field="fbok" value="${escapeHTML(q.feedback_correct||"")}">
+    <label>Feedback (incorrect)</label><input data-field="fbno" value="${escapeHTML(q.feedback_incorrect||"")}">
+    <div class="image-upload"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'qc')"><div class="img-preview" data-field="qc_image_preview">${q.image ? `<img src="${q.image}">` : ""}</div></div>
+  </div>`;
+}
+
+function addQuestion(cid){
+  const list = document.getElementById("kq-list-"+cid);
+  const qi = list.querySelectorAll("[data-question]").length;
+  const wrap = document.createElement("div");
+  wrap.innerHTML = renderQuestionBlock({q:"",options:["","","",""],correct:"A",feedback_correct:"",feedback_incorrect:""}, qi);
+  list.appendChild(wrap.firstElementChild);
+  toast("\u2713 Question added", true);
+}
+
+function addFlipCard(cid){
+  const list = document.getElementById("fc-list-"+cid);
+  const i = list.querySelectorAll("[data-flipcard]").length;
+  const html = `<div class="quiz-edit" data-flipcard="${i}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <b style="color:var(--navy);">Card ${i+1}</b>
+      <button class="remove-btn" onclick="this.closest('[data-flipcard]').remove()">\u00D7</button>
+    </div>
+    <label>Front</label><input data-field="flip_front" value="">
+    <label>Back</label><textarea data-field="flip_back" rows="2"></textarea>
+    <div class="image-upload"><label>Upload image (optional)</label><input type="file" accept="image/*" onchange="handleGenericImage(this,'fc')"><div class="img-preview" data-field="fc_image_preview"></div></div>
+  </div>`;
+  const wrap = document.createElement("div"); wrap.innerHTML = html;
+  list.appendChild(wrap.firstElementChild);
+  toast("\u2713 Flip card added", true);
+}
+
+function addKeyConcept(cid){
+  const list = document.getElementById("kc-list-"+cid);
+  const i = list.querySelectorAll("li").length;
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="editable" contenteditable="true" data-field="key_concept" data-i="${i}">New concept</span> <button class="remove-btn" style="float:right;" onclick="this.closest('li').remove()">\u00D7</button>`;
+  list.appendChild(li);
+}
+
+function addTakeaway(cid){
+  const list = document.getElementById("kt-list-"+cid);
+  const i = list.querySelectorAll("li").length;
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="editable" contenteditable="true" data-field="key_takeaway" data-i="${i}">New takeaway</span> <button class="remove-btn" style="float:right;" onclick="this.closest('li').remove()">\u00D7</button>`;
+  list.appendChild(li);
+}
+
+function downloadCourseAsWord(cid){
+  // Try to read from DOM (live edits) first; fall back to stored course
+  let c = null;
+  try { c = readCourseFromDOM(cid); } catch(e){ c = null; }
+  if(!c){
+    const stored = STORE.load().courses.find(x => x.id === cid);
+    if(!stored){ toast("Course not found", false); return; }
+    c = stored;
+  }
+  const dateNow = new Date();
+  const dateStr = dateNow.toLocaleString("en-GB", {day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const stamp = `${dateNow.getFullYear()}${String(dateNow.getMonth()+1).padStart(2,"0")}${String(dateNow.getDate()).padStart(2,"0")}`;
+  const auditId = "AUDIT-" + dateNow.getTime().toString(36).toUpperCase();
+
+  const safeTitle = (c.title || "Course").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "").substring(0,60);
+  const filename = `RAKBANK_${safeTitle}_${stamp}.doc`;
+
+  const fcRows = (c.flip_cards && c.flip_cards.length)
+    ? c.flip_cards.map((f,i) => `<tr><td style="border:1px solid #ccc;padding:8px;width:5%;text-align:center;font-weight:bold;color:#0A2A5E;">${i+1}</td><td style="border:1px solid #ccc;padding:8px;width:45%;background:#FFF7ED;"><b>${escapeHTML(f.front||"")}</b></td><td style="border:1px solid #ccc;padding:8px;width:50%;">${escapeHTML(f.back||"")}</td></tr>`).join("")
+    : `<tr><td colspan="3" style="border:1px solid #ccc;padding:8px;color:#6B7280;font-style:italic;">No flip cards in this course.</td></tr>`;
+
+  const kqBlocks = (c.knowledge_check || []).map((q,qi) => {
+    const opts = (q.options || []).map((o,oi) => {
+      const letter = "ABCD"[oi];
+      const isCorrect = letter === q.correct;
+      const style = isCorrect
+        ? "padding:6px 10px;margin:4px 0;background:#DCFCE7;border-left:4px solid #16A34A;color:#065F46;font-weight:bold;"
+        : "padding:6px 10px;margin:4px 0;background:#F9FAFB;border-left:4px solid #E5E7EB;color:#374151;";
+      const mark = isCorrect ? " \u2713 CORRECT" : "";
+      return `<div style="${style}">${letter}) ${escapeHTML(o||"")}${mark}</div>`;
+    }).join("");
+    return `<div style="margin:18px 0;padding:14px;border:1px solid #E5E7EB;border-radius:6px;background:#fff;">
+      <p style="font-weight:bold;color:#0A2A5E;font-size:14px;margin:0 0 10px 0;">Question ${qi+1}: ${escapeHTML(q.q||"")}</p>
+      ${opts}
+      <p style="margin:10px 0 4px 0;color:#16A34A;font-size:12px;"><b>Feedback (Correct):</b> ${escapeHTML(q.feedback_correct||"")}</p>
+      <p style="margin:0;color:#C8102E;font-size:12px;"><b>Feedback (Incorrect):</b> ${escapeHTML(q.feedback_incorrect||"")}</p>
+    </div>`;
+  }).join("");
+
+  const kcList = (c.key_concepts || []).map(k => `<li style="margin:4px 0;">${escapeHTML(k)}</li>`).join("");
+  const ktList = (c.key_takeaways || []).map(k => `<li style="margin:4px 0;">${escapeHTML(k)}</li>`).join("");
+
+  const doc = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${escapeHTML(c.title || "Course")}</title>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+  body{font-family:Calibri,Arial,sans-serif;color:#111;font-size:11pt;line-height:1.5;margin:0;}
+  h1{color:#C8102E;font-size:22pt;margin:0 0 4px 0;}
+  h2{color:#0A2A5E;font-size:15pt;margin:18px 0 8px 0;border-bottom:2px solid #C8102E;padding-bottom:4px;}
+  h3{color:#0A2A5E;font-size:12pt;margin:14px 0 6px 0;}
+  table{border-collapse:collapse;width:100%;margin:8px 0;}
+  .audit-box{background:#FEF3C7;border:2px solid #F59E0B;padding:12px 16px;margin:12px 0 20px 0;font-size:10pt;color:#92400E;}
+  .audit-box b{color:#7C2D12;}
+  .pill{display:inline-block;background:#C8102E;color:#fff;padding:3px 12px;font-size:9pt;font-weight:bold;margin-bottom:8px;}
+  .objective{font-style:italic;color:#374151;background:#F9FAFB;padding:10px 14px;border-left:4px solid #0A2A5E;margin:10px 0;}
+  .scenario{background:#FFF7ED;padding:14px 18px;border-left:4px solid #C8102E;margin:10px 0;color:#374151;}
+  .completion{font-style:italic;color:#0A2A5E;text-align:center;padding:14px;background:#F0FDF4;border:1px dashed #16A34A;margin:14px 0;}
+  .footer{margin-top:30px;padding-top:12px;border-top:1px solid #E5E7EB;font-size:9pt;color:#6B7280;text-align:center;}
+</style>
+</head>
+<body>
+
+<div style="background:#C8102E;color:#fff;padding:16px 22px;margin-bottom:14px;">
+  <div style="font-size:18pt;font-weight:bold;letter-spacing:1px;">RAKBANK</div>
+  <div style="font-size:10pt;opacity:.9;">Learning &amp; Development \u00B7 Microlearning Audit Document</div>
+</div>
+
+<div class="audit-box">
+  <b>\uD83D\uDD12 AUDIT METADATA</b><br>
+  <b>Audit ID:</b> ${auditId}<br>
+  <b>Course ID:</b> ${escapeHTML(cid)}<br>
+  <b>Generated:</b> ${dateStr}<br>
+  <b>Generated by:</b> RAKBANK Learning Bites Platform<br>
+  <b>Purpose:</b> Internal audit, compliance review, and content archival
+</div>
+
+<span class="pill">${escapeHTML(c.pill || "Learning")}</span>
+<h1>${escapeHTML(c.icon || "")} ${escapeHTML(c.title || "")}</h1>
+
+<h2>Learning Objective</h2>
+<div class="objective">${escapeHTML(c.learning_objective || "")}</div>
+
+<h2>Key Concepts</h2>
+<ul>${kcList || "<li style='color:#6B7280;'>None defined</li>"}</ul>
+
+<h2>Short Content</h2>
+<p>${escapeHTML(c.short_content || "")}</p>
+
+<h2>Banking Scenario</h2>
+<div class="scenario">${escapeHTML(c.banking_scenario || "")}</div>
+
+<h2>Flip Cards</h2>
+<table>
+  <thead>
+    <tr style="background:#0A2A5E;color:#fff;">
+      <th style="border:1px solid #0A2A5E;padding:8px;width:5%;">#</th>
+      <th style="border:1px solid #0A2A5E;padding:8px;width:45%;text-align:left;">Front (Term / Question)</th>
+      <th style="border:1px solid #0A2A5E;padding:8px;width:50%;text-align:left;">Back (Definition / Answer)</th>
+    </tr>
+  </thead>
+  <tbody>${fcRows}</tbody>
+</table>
+
+<h2>Knowledge Check (${(c.knowledge_check||[]).length} question${(c.knowledge_check||[]).length===1?"":"s"})</h2>
+${kqBlocks || "<p style='color:#6B7280;font-style:italic;'>No questions defined</p>"}
+
+<h2>Key Takeaways</h2>
+<ul>${ktList || "<li style='color:#6B7280;'>None defined</li>"}</ul>
+
+<h2>Completion Message</h2>
+<div class="completion">"${escapeHTML(c.completion_message || "")}"</div>
+
+<div class="footer">
+  This document was auto-generated from the RAKBANK Learning Bites platform for audit and archival purposes.<br>
+  Audit ID: ${auditId} \u00B7 Generated ${dateStr} \u00B7 Confidential \u2014 RAKBANK Internal Use
+</div>
+
+</body>
+</html>`;
+
+  downloadFile(doc, filename, "application/msword");
+  toast("\u2713 Word document downloaded for audit", true);
+}
+
+
+function handleGenericImage(input, kind){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  var r = new FileReader();
+  r.onload = function(e){
+    var url = e.target.result;
+    var wrap = input.closest('.image-upload');
+    if(!wrap) return;
+    var preview = wrap.querySelector('.img-preview');
+    if(preview){ preview.innerHTML = '<img src="' + url + '">'; }
+    var parent = null;
+    if(kind === 'fc') parent = input.closest('[data-flipcard]');
+    else if(kind === 'qc') parent = input.closest('[data-question]');
+    else if(kind === 'kc') parent = input.closest('[data-kc-index]');
+    else if(kind === 'kt') parent = input.closest('[data-kt-index]');
+    else if(kind === 'sc' || kind === 'bs') parent = input.closest('.section-block');
+    if(parent){ parent.dataset.image = url; }
+  };
+  r.readAsDataURL(f);
+}
+
+function readCourseFromDOM(cid){
+  const r = document.querySelector(`[data-cid="${cid}"]`);
+  if(!r) return null;
+  const questions = Array.from(r.querySelectorAll("[data-question]")).map(qb => ({
+    q: qb.querySelector('[data-field="q"]').value.trim(),
+    options: [0,1,2,3].map(oi => qb.querySelector(`[data-field="opt_${oi}"]`).value.trim()),
+    correct: qb.querySelector('[data-field="correct"]').value,
+    feedback_correct: qb.querySelector('[data-field="fbok"]').value.trim(),
+    feedback_incorrect: qb.querySelector('[data-field="fbno"]').value.trim(),
+    image: (qb.dataset && qb.dataset.image) ? qb.dataset.image : ((qb.querySelector('.img-preview img')||{}).src || "")
+  }));
+  const flipCards = Array.from(r.querySelectorAll("[data-flipcard]")).map(fb => ({
+    front: fb.querySelector('[data-field="flip_front"]').value.trim(),
+    back: fb.querySelector('[data-field="flip_back"]').value.trim(),
+    image: (fb.dataset && fb.dataset.image) ? fb.dataset.image : ((fb.querySelector('.img-preview img')||{}).src || "")
+  }));
+  const kcImages = Array.from(r.querySelectorAll("[data-kc-index]")).map(li => (li.dataset && li.dataset.image) ? li.dataset.image : ((li.querySelector('.img-preview img')||{}).src || ""));
+  const ktImages = Array.from(r.querySelectorAll("[data-kt-index]")).map(li => (li.dataset && li.dataset.image) ? li.dataset.image : ((li.querySelector('.img-preview img')||{}).src || ""));
+  const scWrap = r.querySelector('.section-block.sb-sc');
+  const bsWrap = r.querySelector('.section-block.sb-bs');
+  const scImage = scWrap ? ((scWrap.dataset && scWrap.dataset.image) ? scWrap.dataset.image : ((scWrap.querySelector('.img-preview img')||{}).src || "")) : "";
+  const bsImage = bsWrap ? ((bsWrap.dataset && bsWrap.dataset.image) ? bsWrap.dataset.image : ((bsWrap.querySelector('.img-preview img')||{}).src || "")) : "";
+  return {
+    icon: r.querySelector('[data-field="icon"]').innerText.trim(),
+    pill: r.querySelector('[data-field="pill"]').innerText.trim(),
+    title: r.querySelector('[data-field="title"]').innerText.trim(),
+    learning_objective: r.querySelector('[data-field="learning_objective"]').innerText.trim(),
+    key_concepts: Array.from(r.querySelectorAll('[data-field="key_concept"]')).map(e => e.innerText.trim()).filter(x => x),
+    short_content: r.querySelector('[data-field="short_content"]').value.trim(),
+    banking_scenario: r.querySelector('[data-field="banking_scenario"]').value.trim(),
+    flip_cards: flipCards.filter(f => f.front || f.back),
+    key_takeaways: Array.from(r.querySelectorAll('[data-field="key_takeaway"]')).map(e => e.innerText.trim()).filter(x => x),
+    completion_message: r.querySelector('[data-field="completion_message"]').innerText.trim(),
+    short_content_image: scImage,
+    banking_scenario_image: bsImage,
+    key_concept_images: kcImages,
+    key_takeaway_images: ktImages,
+    knowledge_check: questions
+  };
+}
+function saveEditedCourse(cid){
+  const upd = readCourseFromDOM(cid); if(!upd) return;
+  const d = STORE.load();
+  const idx = d.courses.findIndex(c => c.id === cid);
+  if(idx < 0) return;
+  Object.assign(d.courses[idx], upd);
+  STORE.save(d); toast("\u2713 Saved", true);
+}
+
+function b64UrlFromBytes(bytes){ let bin=""; bytes.forEach(b=>bin+=String.fromCharCode(b)); return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,""); }
+function bytesFromB64Url(str){ str=String(str||"").replace(/-/g,"+").replace(/_/g,"/"); while(str.length%4) str+="="; const bin=atob(str); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i); return bytes; }
+function b64UrlFromText(text){ return b64UrlFromBytes(new TextEncoder().encode(text)); }
+function textFromB64Url(str){ return new TextDecoder().decode(bytesFromB64Url(str)); }
+async function gzipText(text){ if(!window.CompressionStream) throw new Error("CompressionStream not available"); const cs=new CompressionStream("gzip"); const writer=cs.writable.getWriter(); writer.write(new TextEncoder().encode(text)); writer.close(); return new Uint8Array(await new Response(cs.readable).arrayBuffer()); }
+async function gunzipText(bytes){ if(!window.DecompressionStream) throw new Error("DecompressionStream not available"); const ds=new DecompressionStream("gzip"); const writer=ds.writable.getWriter(); writer.write(bytes); writer.close(); return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer()); }
+function compactPayload(assignment, course, settings){ return {v:2,a:{i:assignment.id,ci:assignment.courseId,n:assignment.name,e:assignment.email,emp:assignment.empId,d:assignment.department,t:assignment.token,p:!!assignment.isPreview},c:{i:course.id,t:course.title,top:course.topic,p:course.pill,ico:course.icon,lo:course.learning_objective,kc:course.key_concepts,sc:course.short_content,bs:course.banking_scenario,fc:(course.flip_cards||[]).map(f=>[f.front,f.back,f.image||""]),kq:(course.knowledge_check||[]).map(q=>[q.q,q.options,q.correct,q.feedback_correct,q.feedback_incorrect,q.image||""]),sci:course.short_content_image||"",bsi:course.banking_scenario_image||"",kci:course.key_concept_images||[],kti:course.key_takeaway_images||[],kt:course.key_takeaways,cm:course.completion_message},tr:{f:settings.formTemplate||""}}; }
+function expandPayload(data){ if(data && data.assignment && data.course) return data; const a=data.a||{}, c=data.c||{}, tr=data.tr||{}; const course={id:c.i,title:c.t,topic:c.top,pill:c.p,icon:c.ico,learning_objective:c.lo,key_concepts:c.kc||[],short_content:c.sc||"",banking_scenario:c.bs||"",flip_cards:(c.fc||[]).map(f=>({front:f[0],back:f[1],image:f[2]||""})),knowledge_check:(c.kq||[]).map(q=>({q:q[0],options:q[1]||[],correct:q[2],feedback_correct:q[3]||"",feedback_incorrect:q[4]||"",image:q[5]||""})),key_takeaways:c.kt||[],short_content_image:c.sci||"",banking_scenario_image:c.bsi||"",key_concept_images:c.kci||[],key_takeaway_images:c.kti||[],completion_message:c.cm||""}; const assignment={id:a.i,courseId:a.ci,courseTitle:c.t,name:a.n,email:a.e,empId:a.emp,department:a.d,token:a.t,status:"Not Started",isPreview:!!a.p}; return {assignment,course,formTemplate:tr.f||""}; }
+async function buildLearnerLink(assignment, course){
+  const s=SETTINGS.load();
+  const currentBase = window.location.href.split("#")[0].split("?")[0];
+  const hosted = (s.hostedUrl || currentBase).trim();
+  // Dedicated learner-only page prevents any fallback to the admin/platform screen.
+  let base = hosted;
+  if(/DemoInABox[^\/]*\.html(\?.*)?$/i.test(base)) base = base.replace(/DemoInABox[^\/]*\.html(\?.*)?$/i, "Learner.html");
+  else if(!/\.html(\?.*)?$/i.test(base)) base = base.replace(/\/?$/, "/") + "Learner.html";
+  const json=JSON.stringify(compactPayload(assignment, course, s));
+  try { return base+"#learn=z."+b64UrlFromBytes(await gzipText(json)); } catch(e){ return base+"#learn=j."+b64UrlFromText(json); }
+}
+async function decodeLearnPayload(encoded){ if(encoded.startsWith("z.")) return expandPayload(JSON.parse(await gunzipText(bytesFromB64Url(encoded.slice(2))))); if(encoded.startsWith("j.")) return expandPayload(JSON.parse(textFromB64Url(encoded.slice(2)))); return expandPayload(JSON.parse(decodeURIComponent(escape(atob(encoded))))); }
+
+
+async function previewAsLearner(cid){
+  const course = STORE.load().courses.find(c => c.id === cid);
+  if(!course) return;
+  const a = { id:"PREVIEW-"+Date.now(), courseId:cid, courseTitle:course.title, name:"Laura Evelyn Anesly", empId:"RB-LAURA", email:"laura.anesly@rakbank.ae", department:"L&D", token:"prev", status:"Not Started", isPreview:true };
+  const link = await buildLearnerLink(a, course);
+  window.open(link, "_blank");
+}
+
+function addLearnerRow(data){
+  data = data || {name:"", empId:"", email:"", dept:""};
+  const tbody = document.getElementById("learnerRows");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td><input class="lr-name" placeholder="Full name" value="${escapeHTML(data.name)}"></td><td><input class="lr-id" placeholder="RB12345" value="${escapeHTML(data.empId)}"></td><td><input class="lr-email" type="email" placeholder="name@rakbank.ae" value="${escapeHTML(data.email)}"></td><td><input class="lr-dept" placeholder="Department" value="${escapeHTML(data.dept)}"></td><td><button class="remove-btn" onclick="this.closest('tr').remove()">\u00D7</button></td>`;
+  tbody.appendChild(tr);
+}
+function loadPreset(key){
+  const team = PRESETS[key]; if(!team) return;
+  document.getElementById("learnerRows").innerHTML = "";
+  team.forEach(addLearnerRow);
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "t-manual"));
+  document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === "t-manual"));
+  toast(`Loaded ${team.length} learners`, true);
+}
+function handleCSV(ev){
+  const file = ev.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+    if(lines.length < 2){ toast("CSV empty", false); return; }
+    document.getElementById("learnerRows").innerHTML = "";
+    for(let i = 1; i < lines.length; i++){
+      const c = lines[i].split(",").map(x => x.trim().replace(/^"|"$/g,""));
+      if(c.length >= 4 && c[0]) addLearnerRow({name:c[0],empId:c[1],email:c[2],dept:c[3]});
+    }
+    toast("Imported", true);
+  };
+  reader.readAsText(file);
+}
+function refreshAssignDropdown(){
+  const sel = document.getElementById("assignCourse");
+  const d = STORE.load();
+  if(d.courses.length === 0){ sel.innerHTML = `<option value="">No courses yet</option>`; return; }
+  sel.innerHTML = d.courses.map(c => `<option value="${c.id}">${escapeHTML(c.title)}</option>`).join("");
+}
+
+async function assignToAll(){
+  const courseId = document.getElementById("assignCourse").value;
+  if(!courseId){ toast("Pick a course", false); return; }
+  const d = STORE.load();
+  const course = d.courses.find(c => c.id === courseId);
+  if(!course) return;
+  const rows = document.querySelectorAll("#learnerRows tr");
+  const learners = [];
+  rows.forEach(r => {
+    const name = r.querySelector(".lr-name").value.trim();
+    const empId = r.querySelector(".lr-id").value.trim();
+    const email = r.querySelector(".lr-email").value.trim();
+    const dept = r.querySelector(".lr-dept").value.trim();
+    if(name && email) learners.push({name, empId, email, dept});
+  });
+  if(learners.length === 0){ toast("Add at least one learner", false); return; }
+  const result = document.getElementById("assignResult");
+  result.innerHTML = `<h4 style="color:var(--navy);margin-bottom:12px;">\u2705 Assigned to ${learners.length} learner${learners.length>1?"s":""}</h4>`;
+  for (const l of learners) {
+    const token = "tok-" + Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
+    const a = {
+      id:"A-"+Date.now()+"-"+Math.random().toString(36).slice(2,6),
+      courseId, courseTitle:course.title, name:l.name, empId:l.empId, email:l.email, department:l.dept,
+      token, status:"Not Started", assignedDate:new Date().toISOString()
+    };
+    a.link = await buildLearnerLink(a, course);
+    d.assignments.unshift(a);
+    const card = document.createElement("div");
+    card.className = "result-card";
+    card.innerHTML = `<div style="flex:1;min-width:0;"><div class="name">${escapeHTML(l.name)}</div><div class="meta">${escapeHTML(l.email)} \u00B7 ${escapeHTML(l.dept||"\u2014")}</div><div class="url-display">${escapeHTML(a.link)}</div></div><div style="display:flex;gap:6px;"><button class="btn small green" onclick="copyLink('${a.link.replace(/'/g,"\\'")}')">\uD83D\uDCCB</button><a class="btn small secondary" href="${a.link}" target="_blank">\u2197</a></div>`;
+    result.appendChild(card);
+  }
+  STORE.save(d);
+  toast(`\u2705 ${learners.length} link${learners.length>1?"s":""} created`, true);
+}
+function copyLink(link){
+  if(navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast("Copied!", true)).catch(() => fallbackCopy(link));
+  else fallbackCopy(link);
+}
+function fallbackCopy(text){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast("Copied!", true); } catch(e){}
+  document.body.removeChild(ta);
+}
+
+function openSettings(){
+  const s = SETTINGS.load();
+  document.getElementById("hostedUrl").value = s.hostedUrl || "";
+  document.getElementById("webhookUrl").value = s.webhookUrl || "";
+  document.getElementById("formTemplate").value = s.formTemplate || "";
+  document.getElementById("settingsModal").classList.add("show");
+}
+function closeSettings(){ document.getElementById("settingsModal").classList.remove("show"); }
+function saveSettings(){
+  SETTINGS.save({
+    hostedUrl: document.getElementById("hostedUrl").value.trim(),
+    formTemplate: document.getElementById("formTemplate").value.trim(),
+    webhookUrl: ""
+  });
+  updateHostedNote(); updateWebhookStatus(); initLiveExcelBox();
+  closeSettings();
+  toast("\u2713 Settings saved", true);
+}
+function updateHostedNote(){
+  const s = SETTINGS.load();
+  const note = document.getElementById("hostedNote");
+  if(!note) return;
+  note.innerHTML = s.hostedUrl 
+    ? `<div class="info-box" style="margin-top:14px;">\uD83C\uDF10 Hosted: <span style="font-family:monospace;font-size:11px;">${escapeHTML(s.hostedUrl)}</span></div>`
+    : `<div class="warning-box">\u26A0 No hosted URL set. Add one in \u2699 Settings.</div>`;
+}
+function updateWebhookStatus(){
+  const s = SETTINGS.load();
+  const note = document.getElementById("webhookStatus");
+  if(!note) return;
+  note.innerHTML = s.formTemplate
+    ? `<div class="info-box" style="background:#F0FDF4;border-left-color:#16A34A;color:#065F46;margin-top:10px;">✅ Microsoft Forms tracking is ready.</div>`
+    : `<div class="warning-box">⚠ Add your Microsoft Forms pre-filled URL in Settings before assigning learners.</div>`;
+}
+
+async function testWebhook(){
+  const url = document.getElementById("webhookUrl").value.trim();
+  if(!url){ toast("Enter webhook URL first", false); return; }
+  showOverlay(true);
+  document.getElementById("spinnerMsg").innerText = "Sending test...";
+  const testData = {
+    test: true, timestamp: new Date().toISOString(),
+    learnerName: "Test User", learnerEmail: "test@rakbank.ae",
+    empId: "TEST123", department: "Test", courseTitle: "Test Course",
+    courseId: "TEST", score: 100, attempts: 1, passed: true,
+    completionDate: new Date().toISOString(), token: "test-token"
+  };
+  try {
+    await fetch(url, {
+      method: "POST", mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(testData)
+    });
+    showOverlay(false);
+    toast("\u2705 Test sent! Check your email/Excel/Teams.", true);
+  } catch(err){
+    showOverlay(false);
+    toast("\u274C Failed: " + err.message, false);
+  }
+}
+
+
+/* ============== DASHBOARD EXCEL PROCESSING + LIVE SYNC ============== */
+const LIVE_EXCEL = {
+  KEY:"rakbank_live_excel_url",
+  load(){ return localStorage.getItem(this.KEY) || ""; },
+  save(url){ localStorage.setItem(this.KEY, url || ""); }
+};
+
+function initLiveExcelBox(){
+  const box = document.getElementById("liveExcelUrl");
+  if(box) box.value = LIVE_EXCEL.load();
+}
+
+function saveLiveExcelUrl(){
+  const box = document.getElementById("liveExcelUrl");
+  if(!box) return;
+  LIVE_EXCEL.save(box.value.trim());
+  toast("Live Excel URL saved", true);
+}
+
+function normalizeExcelKey(s){ return String(s||"").trim().toLowerCase().replace(/[\s_\-]/g,""); }
+function getExcelValue(row, names){
+  const map = {};
+  Object.keys(row).forEach(k => map[normalizeExcelKey(k)] = row[k]);
+  for(const name of names){
+    const key = normalizeExcelKey(name);
+    if(map[key] !== undefined && map[key] !== null && String(map[key]).trim() !== "") return map[key];
+  }
+  return "";
+}
+function excelPassed(v, score){
+  const x = String(v||"").trim().toLowerCase();
+  return v === true || v === 1 || x === "true" || x === "yes" || x === "y" || x === "1" || x === "passed" || x === "pass" || x === "completed" || score >= PASS_MARK;
+}
+function cleanExcelDate(v){
+  if(!v) return new Date().toISOString();
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
+function processDashboardRows(rows){
+  const d = STORE.load();
+  if(!d.results) d.results = [];
+  let imported = 0, updated = 0, skipped = 0, failed = 0;
+
+  rows.forEach((row) => {
+    const dateRaw = getExcelValue(row, ["Date", "Completion Date", "completionDate", "Timestamp", "Submitted At"]);
+    const name = String(getExcelValue(row, ["Name", "Learner Name", "Employee Name"])).trim();
+    const empId = String(getExcelValue(row, ["EmployeeID", "Employee ID", "EmpID", "Emp Id"])).trim();
+    const dept = String(getExcelValue(row, ["Department", "Dept"])).trim();
+    const course = String(getExcelValue(row, ["Course", "Course Title", "CourseTitle", "Course Name"])).trim();
+    const email = String(getExcelValue(row, ["Email", "Learner Email", "Employee Email"])).trim();
+    const score = Number(String(getExcelValue(row, ["Score", "Marks", "Percentage"])).replace("%", "")) || 0;
+    const attempts = parseInt(getExcelValue(row, ["Attempts", "Attempt"]), 10) || 1;
+    const passedRaw = getExcelValue(row, ["Passed", "Status", "Result"]);
+    const completionDate = cleanExcelDate(dateRaw);
+
+    if(!name || !empId || !course || !email){ failed++; return; }
+    if(!excelPassed(passedRaw, score)){ skipped++; return; }
+
+    const idx = d.results.findIndex(r =>
+      String(r.empId||"").trim().toLowerCase() === empId.toLowerCase() &&
+      String(r.email||"").trim().toLowerCase() === email.toLowerCase() &&
+      String(r.courseTitle||"").trim().toLowerCase() === course.toLowerCase()
+    );
+
+    const obj = {
+      id: idx >= 0 ? d.results[idx].id : "R-" + Date.now() + "-" + Math.random().toString(36).slice(2,6),
+      assignmentId: idx >= 0 ? (d.results[idx].assignmentId || "EXCEL-SYNC") : "EXCEL-SYNC-" + Date.now(),
+      name,
+      empId,
+      email,
+      department: dept,
+      courseTitle: course,
+      score,
+      attempts,
+      status: "Completed",
+      completionDate
+    };
+
+    if(idx >= 0){ d.results[idx] = obj; updated++; }
+    else { d.results.unshift(obj); imported++; }
+  });
+
+  STORE.save(d);
+  renderDashboard();
+  return {imported, updated, skipped, failed};
+}
+
+function rowsFromWorkbookArrayBuffer(buffer){
+  const workbook = XLSX.read(new Uint8Array(buffer), {type:"array", cellDates:true});
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(sheet, {raw:false, defval:"", dateNF:"yyyy-mm-dd hh:mm:ss"});
+}
+
+function importExcel(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  if(typeof XLSX === "undefined"){
+    toast("Excel reader not loaded. Please check internet connection and try again.", false);
+    return;
+  }
+  showOverlay(true);
+  document.getElementById("spinnerMsg").innerText = "Uploading dashboard Excel...";
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const rows = rowsFromWorkbookArrayBuffer(e.target.result);
+      if(!rows.length){ showOverlay(false); toast("No rows found in the Excel file.", false); return; }
+      const result = processDashboardRows(rows);
+      showOverlay(false);
+      ev.target.value = "";
+      let msg = `Dashboard updated: ${result.imported} new row${result.imported===1?"":"s"}`;
+      if(result.updated) msg += `, ${result.updated} refreshed`;
+      if(result.skipped) msg += `, ${result.skipped} skipped`;
+      if(result.failed) msg += `, ${result.failed} missing required data`;
+      toast(msg, result.imported || result.updated ? true : false);
+    }catch(err){
+      showOverlay(false);
+      toast("Could not read Excel file: " + err.message, false);
+      console.error(err);
+    }
+  };
+  reader.onerror = function(){ showOverlay(false); toast("Failed to read the file.", false); };
+  reader.readAsArrayBuffer(file);
+}
+
+async function syncLiveExcel(showMessages){
+  const url = LIVE_EXCEL.load();
+  if(!url){ if(showMessages) toast("Paste and save the Live Excel URL first", false); return; }
+  if(typeof XLSX === "undefined"){
+    toast("Excel reader not loaded. Please check internet connection and try again.", false);
+    return;
+  }
+  try{
+    showOverlay(true);
+    document.getElementById("spinnerMsg").innerText = "Syncing Live Excel...";
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error("Could not access Excel file. Check the URL sharing permission.");
+    const buffer = await res.arrayBuffer();
+    const rows = rowsFromWorkbookArrayBuffer(buffer);
+    if(!rows.length){ showOverlay(false); toast("No rows found in the live Excel file.", false); return; }
+    const result = processDashboardRows(rows);
+    showOverlay(false);
+    let msg = `Live sync complete: ${result.imported} new row${result.imported===1?"":"s"}`;
+    if(result.updated) msg += `, ${result.updated} refreshed`;
+    if(result.skipped) msg += `, ${result.skipped} skipped`;
+    if(result.failed) msg += `, ${result.failed} missing required data`;
+    if(showMessages) toast(msg, result.imported || result.updated ? true : false);
+  }catch(err){
+    showOverlay(false);
+    if(showMessages) toast("Live sync failed: " + err.message, false);
+    console.error(err);
+  }
+}
+
+
+/* ============== SHARED LEARNER MODE ============== */
+let sharedState = { screen:1, qIdx:0, score:0, answers:[], attempts:1, webhookUrl:"" };
+
+function renderSharedLearner(assignment, course, webhookUrl, formTemplate){
+  const d = STORE.load();
+  if(!assignment.isPreview && d.completedTokens && d.completedTokens.indexOf(assignment.token) >= 0){
+    renderAlreadyCompleted(assignment, course); return;
+  }
+  sharedState = { screen:1, qIdx:0, score:0, answers:[], attempts:1, assignment, course, webhookUrl: webhookUrl || "", formTemplate: formTemplate || "", formUrl:"" };
+  renderSharedScreen();
+}
+
+
+function launchConfetti(durationMs){
+  try{
+    durationMs = durationMs || 4500;
+    var existing = document.getElementById("rakConfetti");
+    if(existing) existing.remove();
+    var canvas = document.createElement("canvas");
+    canvas.id = "rakConfetti";
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+    var colors = ["#E30613","#F5B335","#3F4A5C","#009FE3","#00A66C","#FFB020","#FF6B6B","#7C3AED"];
+    var count = Math.min(220, Math.floor(window.innerWidth/6));
+    var parts = [];
+    for(var i=0;i<count;i++){
+      parts.push({
+        x: Math.random()*canvas.width,
+        y: -20 - Math.random()*canvas.height*0.6,
+        r: 5 + Math.random()*7,
+        c: colors[Math.floor(Math.random()*colors.length)],
+        vx: -2 + Math.random()*4,
+        vy: 2 + Math.random()*4,
+        rot: Math.random()*Math.PI*2,
+        vr: -0.15 + Math.random()*0.3,
+        shape: Math.random() < 0.5 ? "rect" : "circ"
+      });
+    }
+    var start = performance.now();
+    function frame(now){
+      var elapsed = now - start;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(var i=0;i<parts.length;i++){
+        var p = parts[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+        if(p.shape === "rect"){ ctx.fillRect(-p.r, -p.r*0.5, p.r*2, p.r); }
+        else { ctx.beginPath(); ctx.arc(0,0,p.r*0.7,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+      }
+      if(elapsed < durationMs){ requestAnimationFrame(frame); }
+      else { canvas.style.transition = "opacity .6s ease"; canvas.style.opacity = "0"; setTimeout(function(){ if(canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas); }, 700); }
+    }
+    requestAnimationFrame(frame);
+  } catch(e){ console.warn("confetti failed", e); }
+}
+
+function renderSharedScreen(){
+  const { screen, course, assignment, attempts } = sharedState;
+  const total = course.knowledge_check.length;
+  const indicator = screen <= 6 ? `<span class="current">${screen}</span> / 6` : `\u2713 Done`;
+  let cardHTML = "", actionsHTML = "";
+  if(screen === 1){
+    cardHTML = `<div class="shared-icon">${escapeHTML(course.icon || "\uD83D\uDCDA")}</div><span class="shared-pill">${escapeHTML(course.pill)}</span><h1>${escapeHTML(course.title)}</h1><p>Hi <b>${escapeHTML(assignment.name.split(" ")[0])}</b>, welcome to your 5-minute microlearning module. ${escapeHTML(course.learning_objective)}</p><h2>What you'll do</h2><ul class="checklist"><li>Read short, focused content</li>${(course.flip_cards && course.flip_cards.length) ? '<li>Flip through interactive cards</li>' : ''}<li>Explore a real branch scenario</li><li>Answer ${total} quick questions</li></ul>`;
+    actionsHTML = `<button class="shared-btn" onclick="sharedNext()">Start Learning \u2192</button>`;
+  } else if(screen === 2){
+    cardHTML = `<span class="shared-pill">Learning Content</span><h1>Key Points</h1>${course.short_content_image ? '<div class="qc-image"><img src="'+course.short_content_image+'"></div>' : ''}<p>${escapeHTML(course.short_content)}</p><h2>Important Concepts</h2><ul class="checklist">${course.key_concepts.map((k,i) => `<li>${escapeHTML(k)}${(course.key_concept_images && course.key_concept_images[i]) ? '<div class="qc-image"><img src="'+course.key_concept_images[i]+'"></div>' : ''}</li>`).join("")}</ul>`;
+    actionsHTML = `<button class="shared-btn" onclick="sharedNext()">Next \u2192</button><button class="shared-btn secondary" onclick="sharedPrev()">\u2190 Back</button>`;
+  } else if(screen === 3){
+    const cards = (course.flip_cards && course.flip_cards.length) ? course.flip_cards : null;
+    if(cards){
+      cardHTML = `<span class="shared-pill">Flip Cards \u00B7 Tap to Reveal</span><h1>Quick Recap</h1><p>Tap each card to see the answer on the back.</p><div class="flip-grid">${cards.map(f => `<div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner"><div class="flip-face flip-front">${f.image ? '<div class="flip-image"><img src="'+f.image+'">'+'</div>' : ''}<div>${escapeHTML(f.front)}</div></div><div class="flip-face flip-back">${escapeHTML(f.back)}</div></div></div>`).join("")}</div>`;
+      actionsHTML = `<button class="shared-btn" onclick="sharedNext()">Next \u2192</button><button class="shared-btn secondary" onclick="sharedPrev()">\u2190 Back</button>`;
+    } else {
+      sharedState.screen = 4;
+      return renderSharedScreen();
+    }
+  } else if(screen === 4){
+    cardHTML = `<span class="shared-pill">Real-Life Scenario</span><h1>The Scenario</h1>${course.banking_scenario_image ? '<div class="qc-image"><img src="'+course.banking_scenario_image+'"></div>' : ''}<div class="scenario-box">${escapeHTML(course.banking_scenario)}</div><h2>What would you do?</h2><p>Think it through before moving on.</p>`;
+    actionsHTML = `<button class="shared-btn" onclick="sharedNext()">Take the Quiz \u2192</button><button class="shared-btn secondary" onclick="sharedPrev()">\u2190 Back</button>`;
+  } else if(screen === 5){ return renderSharedQuiz(indicator); }
+  else if(screen === 6){
+    const pct = Math.round((sharedState.score / total) * 100);
+    if(pct >= PASS_MARK){
+      const badge = pct >= 95 ? "\uD83E\uDD47 Gold" : pct >= 90 ? "\uD83E\uDD48 Silver" : "\uD83E\uDD49 Bronze";
+      cardHTML = `<div style="text-align:center;"><div style="font-size:64px;">\uD83C\uDFC6</div><span class="shared-pill">Quiz Complete</span><h1>Congratulations!</h1><p style="font-style:italic;">"${escapeHTML(course.completion_message)}"</p><div class="score-circle" style="--p:${pct};"><div class="score-inner"><b>${pct}%</b><span>PASSED</span></div></div><div class="shared-cert-display"><h4>CERTIFICATE OF COMPLETION</h4><div class="cert-name">${escapeHTML(assignment.name)}</div><div class="cert-meta">${escapeHTML(assignment.empId||"")}</div><div class="cert-course">${escapeHTML(course.title)}</div><div class="cert-meta">${new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}</div><div class="cert-badge">${badge}</div></div></div><h2 style="text-align:left;">Key Takeaways</h2><ul class="checklist">${course.key_takeaways.map((k,i) => `<li>${escapeHTML(k)}${(course.key_takeaway_images && course.key_takeaway_images[i]) ? '<div class="qc-image"><img src="'+course.key_takeaway_images[i]+'"></div>' : ''}</li>`).join("")}</ul>`;
+      setTimeout(function(){ launchConfetti(4500); }, 250); actionsHTML = `<button class="shared-btn green" onclick="sharedDownloadCertificate()">\uD83D\uDCC4 Download Certificate (PDF)</button><button class="shared-btn" onclick="sharedSubmit()">\u2705 Submit & Finish</button>`;
+    } else {
+      cardHTML = `<div class="shared-fail-card"><span class="fail-icon">\u2715</span><h1>Almost there!</h1><div class="fail-score">${pct}%</div><div class="pass-note"><b>You need 80% to pass.</b></div><p style="margin-top:16px;color:#374151;">Review and try again. Attempt ${attempts}.</p></div>`;
+      actionsHTML = `<button class="shared-btn" onclick="sharedRetryQuiz()">\u21BB Try Quiz Again</button><button class="shared-btn secondary" onclick="sharedRetryFromContent()">\u2190 Review Content</button>`;
+    }
+  } else if(screen === 7){
+    const needsForm = !!sharedState.formUrl;
+    cardHTML = needsForm ? `<div class="shared-final"><div class="big-trophy">🎉</div><h1>Course Complete!</h1><div class="key-message">"${escapeHTML(course.completion_message)}"</div><div class="success-banner" style="text-align:left;"><div class="icon">✅</div><div><h4>Final confirmation required</h4><p>Please click <b>Submit</b> on the Microsoft Forms confirmation page to record your completion in the L&D tracker.</p></div></div><p style="color:var(--gray);margin-top:14px;font-size:14px;">If the form did not open, use the button below.</p></div>` : `<div class="shared-final"><div class="big-trophy">🎉</div><h1>Course Complete!</h1><div class="key-message">"${escapeHTML(course.completion_message)}"</div><p style="color:#374151;font-size:16px;line-height:1.7;">Your completion has been recorded. Thank you!</p><p style="color:var(--gray);margin-top:14px;font-size:14px;">Have a great day! 👋</p></div>`;
+    setTimeout(function(){ launchConfetti(5000); }, 250); actionsHTML = needsForm ? `<button class="shared-btn green" onclick="sharedOpenConfirmationForm()">Click here to confirm completion</button><button class="shared-btn secondary" onclick="sharedExit()">✕ Close This Tab</button>` : `<button class="shared-btn" onclick="sharedExit()">✕ Close This Tab</button>`;
+  }
+  document.body.innerHTML = `<div class="shared-topbar"><div class="shared-brand"><img class="rakbank-logo-img" src="rakbank-logo.jpg" alt="RAKBANK"><span class="name">Learning Bites</span></div><div class="shared-progress">${indicator}</div></div><div class="shared-container"><div class="shared-card">${cardHTML}</div></div><div class="shared-actions">${actionsHTML}</div>`;
+  window.scrollTo(0,0);
+}
+
+function renderSharedQuiz(indicator){
+  const { course, qIdx, attempts } = sharedState;
+  const q = course.knowledge_check[qIdx];
+  const tag = attempts > 1 ? `<span class="attempt-note">Attempt ${attempts}</span>` : "";
+  document.body.innerHTML = `<div class="shared-topbar"><div class="shared-brand"><img class="rakbank-logo-img" src="rakbank-logo.jpg" alt="RAKBANK"><span class="name">Learning Bites</span></div><div class="shared-progress">${indicator}</div></div><div class="shared-container"><div class="shared-card"><span class="shared-pill">Knowledge Check \u00B7 Q${qIdx+1} of ${course.knowledge_check.length}</span>${tag}<h1>Quick Quiz</h1>${q.image ? '<div class="qc-image"><img src="'+q.image+'"></div>' : ''}<div class="quiz-q">${escapeHTML(q.q)}</div><div>${q.options.map((o,i) => `<button class="quiz-option" onclick="sharedAnswer(${i})">${"ABCD"[i]}) ${escapeHTML(o)}</button>`).join("")}</div><div class="quiz-feedback" id="sharedFb"></div></div></div><div class="shared-actions"><button class="shared-btn" id="sharedNxt" style="display:none;" onclick="sharedNextQ()">${qIdx === course.knowledge_check.length-1 ? "See Results \u2192" : "Next Question \u2192"}</button></div>`;
+}
+
+function sharedAnswer(i){
+  const { course, qIdx } = sharedState;
+  const q = course.knowledge_check[qIdx];
+  const letters = "ABCD";
+  const opts = document.querySelectorAll(".quiz-option");
+  opts.forEach(o => o.disabled = true);
+  const fb = document.getElementById("sharedFb");
+  if(letters[i] === q.correct){
+    opts[i].classList.add("correct");
+    fb.className = "quiz-feedback show ok"; fb.innerText = "\u2713 " + q.feedback_correct;
+    sharedState.score++;
+  } else {
+    opts[i].classList.add("wrong");
+    opts[letters.indexOf(q.correct)].classList.add("correct");
+    fb.className = "quiz-feedback show no"; fb.innerText = "\u2717 " + q.feedback_incorrect;
+  }
+  sharedState.answers.push({ q:q.q, picked:letters[i], correct:q.correct });
+  document.getElementById("sharedNxt").style.display = "block";
+}
+function sharedNext(){ sharedState.screen++; renderSharedScreen(); }
+function sharedPrev(){ if(sharedState.screen > 1){ sharedState.screen--; renderSharedScreen(); } }
+function sharedNextQ(){
+  sharedState.qIdx++;
+  if(sharedState.qIdx >= sharedState.course.knowledge_check.length){ sharedState.screen = 6; renderSharedScreen(); }
+  else renderSharedQuiz(`<span class="current">5</span> / 6`);
+}
+function sharedRetryQuiz(){ sharedState.qIdx = 0; sharedState.score = 0; sharedState.answers = []; sharedState.attempts++; sharedState.screen = 5; renderSharedScreen(); }
+function sharedRetryFromContent(){ sharedState.qIdx = 0; sharedState.score = 0; sharedState.answers = []; sharedState.attempts++; sharedState.screen = 2; renderSharedScreen(); }
+
+function buildFormsCompletionUrl(template, data){
+  if(!template) return "";
+  const map={EMP_NAME:data.learnerName||"", EMP_ID:data.empId||"", EMP_EMAIL:data.learnerEmail||"", DEPT:data.department||"", COURSE_TITLE:data.courseTitle||"", SCORE:String(data.score==null?"":data.score), STATUS:data.status||"Completed", DATE:data.completionDate||"", TOKEN:data.token||""};
+  let url=template;
+  Object.keys(map).forEach(k=>{
+    const v = encodeURIComponent(map[k]);
+    url = url.split(k).join(v).split(encodeURIComponent(k)).join(v);
+  });
+  return url;
+}
+function sharedOpenConfirmationForm(){
+  if(!sharedState.formUrl){ alert("Confirmation form link not available."); return; }
+  let iframe = document.getElementById("completionConfirmFrame");
+  if(!iframe){
+    iframe = document.createElement("iframe");
+    iframe.id = "completionConfirmFrame";
+    iframe.title = "Microsoft Forms completion confirmation";
+    iframe.style.position = "fixed";
+    iframe.style.width = "1px";
+    iframe.style.height = "1px";
+    iframe.style.opacity = "0";
+    iframe.style.pointerEvents = "none";
+    iframe.style.left = "-10000px";
+    iframe.style.top = "-10000px";
+    iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild(iframe);
+  }
+  iframe.src = sharedState.formUrl;
+  const w = window.open(sharedState.formUrl,"_blank","noopener,noreferrer,width=720,height=760");
+  if(!w){ alert("Please allow pop-ups, then click the confirmation button again."); }
+}
+function markLocalCompletion(assignment){ const d=STORE.load(); if(!d.completedTokens) d.completedTokens=[]; if(assignment && assignment.token && d.completedTokens.indexOf(assignment.token)<0) d.completedTokens.push(assignment.token); STORE.save(d); }
+async function sharedSubmit(){
+  const { course, assignment, formTemplate } = sharedState;
+  const total = course.knowledge_check.length;
+  const pct = Math.round((sharedState.score / total) * 100);
+  if(pct < PASS_MARK) return;
+  const btn = document.querySelector(".shared-btn"); if(btn){ btn.disabled = true; btn.innerText = "Preparing completion..."; }
+  const completionData = { assignmentId:assignment.id, courseId:assignment.courseId, courseTitle:assignment.courseTitle||course.title, learnerName:assignment.name, learnerEmail:assignment.email, empId:assignment.empId, department:assignment.department, score:pct, attempts:sharedState.attempts, passed:true, status:"Completed", completionDate:new Date().toISOString(), token:assignment.token };
+  if(formTemplate && !assignment.isPreview){ sharedState.formUrl = buildFormsCompletionUrl(formTemplate, completionData); markLocalCompletion(assignment); sharedState.screen = 7; renderSharedScreen(); sharedOpenConfirmationForm(); return; }
+  markLocalCompletion(assignment); sharedState.screen = 7; renderSharedScreen();
+}
+function sharedExit(){
+  try { window.close(); } catch(e){}
+  setTimeout(() => {
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;text-align:center;padding:40px;background:#F5F7FB;"><div style="font-size:80px;">\uD83D\uDC4B</div><h1 style="color:#0A2A5E;margin-top:16px;">Thank you, ${escapeHTML(sharedState.assignment.name.split(" ")[0])}!</h1><p style="color:#6B7280;margin-top:12px;max-width:400px;">You may close this tab.</p></div>`;
+  }, 100);
+}
+
+function renderAlreadyCompleted(assignment, course){
+  document.body.innerHTML = `<div class="shared-topbar"><div class="shared-brand"><img class="rakbank-logo-img" src="rakbank-logo.jpg" alt="RAKBANK"><span class="name">Learning Bites</span></div><div class="shared-progress">\u2713 Done</div></div><div class="shared-container"><div class="shared-card"><div class="shared-already-msg"><span class="done-icon">\u2705</span><h1 style="color:var(--navy);">Already Completed</h1><p style="color:#374151;margin-top:12px;font-size:16px;">Hi <b>${escapeHTML(assignment.name.split(" ")[0])}</b>, you've already completed <b>${escapeHTML(course.title)}</b>!</p></div></div></div>`;
+}
+
+function sharedDownloadCertificate(){
+  const { assignment, course } = sharedState;
+  const pct = Math.round((sharedState.score / course.knowledge_check.length) * 100);
+  const certId = "RAK-CERT-" + new Date().getFullYear() + "-" + Math.random().toString(36).slice(2,8).toUpperCase();
+  const dateStr = new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Certificate</title><style>@page{size:A4 landscape;margin:0;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Georgia,serif;background:#F5F7FB;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}.cert{width:1050px;max-width:100%;aspect-ratio:1.414/1;background:#fff;position:relative;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,.2);}.bo{position:absolute;inset:15px;border:6px solid #C8102E;}.bi{position:absolute;inset:25px;border:1px solid #C8102E;}.c{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:30px 40px;text-align:center;}.t{font-size:11px;letter-spacing:4px;color:#C8102E;font-weight:bold;}.tr{font-size:48px;margin:10px 0;}.ti{font-size:38px;color:#0A2A5E;font-weight:bold;letter-spacing:6px;margin:8px 0;}.s{font-style:italic;color:#6B7280;font-size:14px;}.n{font-size:42px;color:#C8102E;font-family:'Brush Script MT',cursive;margin:8px 0;}.cn{font-size:22px;color:#0A2A5E;font-weight:bold;margin:8px 0;}.sv{color:#16A34A;font-weight:bold;font-size:18px;}.sr{display:flex;width:100%;justify-content:space-around;margin-top:auto;padding-top:20px;}.sg{width:240px;}.sl{border-top:1.5px solid #0A2A5E;padding-top:6px;font-size:11px;color:#0A2A5E;font-weight:bold;}.f{font-size:10px;color:#6B7280;font-style:italic;margin-top:14px;}.cb{position:fixed;top:10px;right:10px;background:#0A2A5E;color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-family:sans-serif;font-size:12px;}@media print{body{background:#fff;padding:0;}.cert{box-shadow:none;}.cb{display:none;}}</style></head><body><button class="cb" onclick="window.close()">Close</button><div class="cert"><div class="bo"></div><div class="bi"></div><div class="c"><div class="t">RAKBANK \u00B7 LEARNING BITES</div><div class="tr">\uD83C\uDFC6</div><div class="ti">CERTIFICATE</div><div class="s">OF COMPLETION</div><div style="font-size:16px;">This is to certify that</div><div class="n">${escapeHTML(assignment.name)}</div><div style="font-size:14px;">has successfully completed the RAKBANK microlearning module</div><div class="cn">${escapeHTML(course.title)}</div><div style="font-size:14px;">with a score of <span class="sv">${pct}%</span> on <b>${dateStr}</b></div><div class="sr"><div class="sg"><div class="sl">Head of Learning & Development</div></div><div class="sg"><div class="sl">Chief People Officer</div></div></div><div class="f">Certificate ID: <span style="font-family:'Courier New';">${certId}</span></div></div></div><script>window.addEventListener("load",function(){setTimeout(function(){window.print();},600);});<\/script></body></html>`;
+  const popup = window.open("", "_blank", "width=1100,height=750");
+  if(!popup){ alert("Please allow pop-ups"); return; }
+  popup.document.open(); popup.document.write(html); popup.document.close();
+}
+
+function renderDashboard(){
+  const d = STORE.load();
+  document.getElementById("kpiCourses").innerText = d.courses.length;
+  document.getElementById("kpiAssigned").innerText = d.assignments.length;
+  document.getElementById("kpiCompleted").innerText = d.results.length;
+  const avg = d.results.length ? Math.round(d.results.reduce((s,r) => s+r.score, 0) / d.results.length) : null;
+  document.getElementById("kpiAvg").innerText = avg !== null ? avg + "%" : "\u2014";
+  const completed = d.results.length;
+  const inProg = 0;
+  const notStarted = Math.max(0, d.assignments.length - completed);
+  const total = Math.max(1, completed + inProg + notStarted);
+  const pc = (completed/total)*100, pp = (inProg/total)*100;
+  document.getElementById("donut").style.background = `conic-gradient(#16A34A 0 ${pc}%, #F59E0B ${pc}% ${pc+pp}%, #9CA3AF ${pc+pp}% 100%)`;
+  document.getElementById("lgComp").innerText = completed;
+  document.getElementById("lgProg").innerText = inProg;
+  document.getElementById("lgNot").innerText = notStarted;
+  const rows = d.results.slice(0,12).map(r => `<tr><td><b>${escapeHTML(r.name)}</b><br><span style="color:var(--gray);font-size:12px;">${escapeHTML(r.empId||"")} · ${escapeHTML(r.department||"")}</span><br><span style="color:var(--gray);font-size:11px;">${escapeHTML(r.email||"")}</span></td><td>${escapeHTML(r.courseTitle)}</td><td><b>${r.score}%</b><br><span style="color:var(--gray);font-size:11px;">Attempt ${escapeHTML(r.attempts||1)}</span></td><td><span class="badge completed">Completed</span></td><td>${new Date(r.completionDate).toLocaleString("en-GB")}</td></tr>`).join("");
+  document.getElementById("recentRows").innerHTML = rows || `<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:40px;">No completions yet. Upload your Excel from OneDrive above!</td></tr>`;
+}
+
+
+function exportAssignmentLinks(){
+  const courseId = document.getElementById("assignCourse") ? document.getElementById("assignCourse").value : "";
+  const d = STORE.load();
+  let list = courseId ? d.assignments.filter(a => a.courseId === courseId) : d.assignments;
+  if(!list || !list.length){ toast("No links yet \u2014 click Assign to All Learners first.", false); return; }
+  const header = ["Name","Employee ID","Email","Department","Course","Learner Link"];
+  const rows = list.map(a => [a.name||"", a.empId||"", a.email||"", a.department||"", a.courseTitle||"", a.link||""]);
+  if(typeof XLSX !== "undefined"){
+    const ws = XLSX.utils.aoa_to_sheet([header].concat(rows));
+    ws['!cols'] = [{wch:26},{wch:14},{wch:30},{wch:20},{wch:40},{wch:100}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Learner Links");
+    XLSX.writeFile(wb, "RAKBANK_Learner_Links_" + todayStamp() + ".xlsx");
+    toast("\u2705 Excel with " + rows.length + " links downloaded", true);
+  } else {
+    const csv = [header].concat(rows).map(r => r.map(x => '"' + String(x).replace(/"/g,'""') + '"').join(",")).join("\n");
+    downloadFile("\uFEFF" + csv, "RAKBANK_Learner_Links_" + todayStamp() + ".csv", "text/csv;charset=utf-8");
+    toast("\u2705 CSV with " + rows.length + " links downloaded", true);
+  }
+}
+
+function exportCSV(){
+  const d = STORE.load();
+  if(d.results.length === 0){ toast("No completions yet", false); return; }
+  const h = "Employee Name,Employee ID,Email,Course,Score,Status,Completion Date";
+  const rows = d.results.map(r => [r.name, r.empId||"", r.email||"", r.courseTitle, r.score, r.status, new Date(r.completionDate).toLocaleString("en-GB")].map(x => `"${String(x).replace(/"/g,'""')}"`).join(","));
+  downloadFile("\uFEFF" + h + "\n" + rows.join("\n"), `RAKBANK_Report_${todayStamp()}.csv`, "text/csv;charset=utf-8");
+  toast("CSV downloaded", true);
+}
+function exportJSON(){ downloadFile(JSON.stringify(STORE.load(),null,2), `RAKBANK_Backup_${todayStamp()}.json`, "application/json"); toast("Backup downloaded", true); }
+function saveBackup(){ exportJSON(); }
+function importBackup(ev){
+  const file = ev.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { const d = JSON.parse(e.target.result); if(!d.courses) throw "Bad"; if(!d.completedTokens) d.completedTokens = []; STORE.save(d); toast("Restored", true); navTo("s-dash"); }
+    catch(err){ toast("Invalid file", false); }
+  };
+  reader.readAsText(file);
+}
+function resetDemo(){
+  if(confirm("Clear all data?")){
+    localStorage.removeItem(STORE.KEY);
+    toast("Reset", true); navTo("s-generate");
+    document.getElementById("coursePreview").innerHTML = "";
+  }
+}
+function showOverlay(s){ document.getElementById("overlay").classList.toggle("show", s); }
+function toast(msg, success){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.className = "toast " + (success ? "success show" : (success === false ? "error show" : "show"));
+  setTimeout(() => t.classList.remove("show"), 4500);
+}
+function escapeHTML(s){ return String(s==null?"":s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
+function todayStamp(){ const d = new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`; }
+function downloadFile(content, filename, mime){
+  const blob = new Blob([content], { type:mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+function renderInvalidLearnerLink(err){
+  document.body.classList.add("shared-mode");
+  document.body.innerHTML = `<div class="shared-topbar"><div class="shared-brand"><img class="rakbank-logo-img" src="rakbank-logo.jpg" alt="RAKBANK"><span class="name">Learning Bites</span></div><div class="shared-progress">Link check</div></div><div class="shared-container"><div class="shared-card"><div class="shared-fail-card"><span class="fail-icon">⚠</span><h1>Learner link could not be opened</h1><p style="color:#374151;margin-top:14px;line-height:1.6;">This learner-only page did not receive a valid course payload. Please copy the full learner URL again from the Assign to Learners screen, including everything after <b>#learn=</b>.</p><div class="pass-note"><b>Admin note:</b> Make sure the generated link starts with Learner.html#learn=</div></div></div></div>`;
+}
+(async function init(){
+  const hash = window.location.hash || "";
+  const params = new URLSearchParams(window.location.search || "");
+  const isLearnerOnlyPage = /Learner\.html$/i.test(window.location.pathname);
+  const learnValue = hash.startsWith("#learn=") ? hash.slice(7) : (params.get("learn") || "");
+  if(learnValue){
+    try {
+      const data = await decodeLearnPayload(learnValue);
+      if(data && data.assignment && data.course){
+        document.body.classList.add("shared-mode");
+        document.title = data.course.title + " \u2014 RAKBANK Learning";
+        renderSharedLearner(data.assignment, data.course, data.webhookUrl, data.formTemplate);
+        return;
+      }
+    } catch(e){
+      console.warn("Invalid learner link", e);
+      if(isLearnerOnlyPage){ renderInvalidLearnerLink(e); return; }
+    }
+  } else if(isLearnerOnlyPage){
+    renderInvalidLearnerLink();
+    return;
+  }
+  document.querySelectorAll(".nav-btn").forEach(b => b.onclick = () => navTo(b.dataset.target));
+  document.querySelectorAll(".tab-btn").forEach(b => b.onclick = () => {
+    document.querySelectorAll(".tab-btn").forEach(x => x.classList.toggle("active", x === b));
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === b.dataset.tab));
+  });
+  [
+    {name:"Ahmed Khan", empId:"RB12345", email:"ahmed.khan@rakbank.ae", dept:"Retail Banking"},
+    {name:"Fatima Ali", empId:"RB12346", email:"fatima.ali@rakbank.ae", dept:"Retail Banking"},
+    {name:"Omar Hassan", empId:"RB12347", email:"omar.hassan@rakbank.ae", dept:"Compliance"}
+  ].forEach(addLearnerRow);
+  refreshAssignDropdown();
+  updateHostedNote(); updateWebhookStatus(); initLiveExcelBox();
+  document.getElementById("settingsModal").addEventListener("click", e => {
+    if(e.target.id === "settingsModal") closeSettings();
+  });
+})();
+</script>
+</body>
+</html>
