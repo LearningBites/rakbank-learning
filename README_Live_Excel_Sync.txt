@@ -34,9 +34,9 @@ Upload BOTH files to GitHub Pages:
 - Learner.html = learner-only page
 
 In Settings > Hosted URL, paste your platform URL:
-https://laura110311.github.io/rakbank-learning/DemoInABox.html
+https://learningbites.github.io/rakbank-learning/DemoInABox.html
 
 When you click Assign to All Learners, the generated learner links will automatically use:
-https://laura110311.github.io/rakbank-learning/Learner.html#learn=...
+https://learningbites.github.io/rakbank-learning/Learner.html#learn=...
 
 This prevents learners from falling back to the admin/platform screen.
